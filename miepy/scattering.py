@@ -1,4 +1,9 @@
 import numpy as np
+import matplotlib.pyplot as plt
+
+
+label_map = {(0,0): 'eD', (0,1): 'eQ', (0,2): 'eO',
+         (1,0): 'mD', (1,1): 'mQ', (1,2): 'mO'}
 
 class multipoles:
     """Contains an and bn as function of wavelength
@@ -44,3 +49,21 @@ class multipoles:
         extinc = 2*np.pi*sum_val_2/self.k**2
         absorb = extinc - scat
         return scat, absorb
+
+
+    def plot_scattering_modes(self, nmax): 
+        """Plot scattering due to each mode up to nmax"""
+
+        scat = self.scattering_array()
+        m_nmax = scat.shape[1]
+        nmax = min([nmax, m_nmax])
+
+        for i,mtype in enumerate(('e','m')):
+            for n in range(nmax):
+                if n < 3:
+                    label = label_map[(i,n)]
+                else:
+                    label = mtype + str(2**(n+1))
+                plt.plot(self.wav, scat[i,n], linewidth=2, label=label)
+
+        plt.legend()

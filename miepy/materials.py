@@ -8,3 +8,28 @@ class material:
         self.eps = eps
         self.mu = mu
         self.k = 2*np.pi/wav
+
+
+def load_material(filename):
+    """Given a filename containing the following columns (separated by any whitespace, and the last two columns optional):
+
+                 wavelength, eps_real, eps_imag, (mu_real, mu_imag)
+
+       return a material object with the contents"""
+
+    data = np.loadtxt(filename) 
+    Nc = data.shape[1]     #number of columns
+    Nfreq = data.shape[0]  #number of frequencies
+
+    if Nc != 3 and Nc != 5:
+        raise ValueError("Number of columns must be 3 or 5")
+
+    wav = data[:,0]
+    eps = data[:,1] + 1j*data[:,2]
+
+    if Nc == 5:
+        mu = data[:,3] + 1j*data[:,4]
+    else:
+        mu = np.ones(Nfreq)
+
+    return material(wav,eps,mu)
