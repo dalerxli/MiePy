@@ -1,0 +1,12 @@
+
+MiePy is a Python module to calculate scattering and absorption properties of spheres and core-shell structures. Mie theory is used, following the procedure in "Absorption and Scattering of Light by Small Particles" by Bohren & Huffman.
+
+
+
+************************
+Dependencies
+************************
+
+Required Python modules: numpy, scipy, matplotlib
+(optional) Python modules: sympy (for core-shell)
+
