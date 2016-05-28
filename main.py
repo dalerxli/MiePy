@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from miepy.materials import material
-from miepy.mie import sphere
+from miepy.mie_sphere import sphere
 
 wav = np.linspace(400,1000,1000)
 eps = 3.7**2*np.ones(1000)
