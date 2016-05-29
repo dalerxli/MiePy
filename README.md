@@ -49,6 +49,7 @@ To use MiePy without installation, add the MiePy directory to your PYTHONPATH
 Dependencies
 --------------
 For installaltion: setuptools
+
 Required Python modules: numpy, scipy, matplotlib, sympy
 
 
