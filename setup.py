@@ -6,7 +6,7 @@ def read(fname):
 
 setup(
     name = "miepy",
-    version = "0.1",
+    version = "0.1.0",
     author = "John Parker",
     author_email = "japarker@uchicago.com",
     description = ("Python module to calcuate scattering coefficients of a plane wave incident on a sphere or core-shell structure using Mie theory"),
