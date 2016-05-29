@@ -1,20 +1,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from miepy.materials import material, load_material
+from miepy.materials import material, load_material, Ag
 from miepy import sphere
 
-#wavelength from 400nm to 1000nm
-wav = np.linspace(400,1000,1000)
-
-#create a material with n = 3.7 (eps = n^2) at all wavelengths
+#create a silver material miepy.materials (wavelengths 300-1100nm)
 eps = 3.7**2*np.ones(1000)
 mu = 1*np.ones(1000)
-dielectric = material(wav,eps,mu)     #material object
+silver = Ag()     #material object
 
 #calculate scattering coefficients
-rad = 100       # 100 nm radius
+rad = 200       # 200 nm radius
 Nmax = 10       # Use up to 10 multipoles
-m = sphere(Nmax, dielectric, rad) #scattering object
+m = sphere(Nmax, silver, rad) #scattering object
 
 # Figure 1: Scattering and Absorption
 plt.figure(1)
@@ -30,7 +27,7 @@ plt.ylabel("Scattering Intensity")
 plt.figure(2)
 plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 plt.plot(m.wav,C,label="Total", linewidth=2)  #plot total scattering
-m.plot_scattering_modes(2)    #plots all modes up n=2 (dipole,quadrupole)
+m.plot_scattering_modes(4)    #plots all modes up n=4
 plt.legend()
 plt.xlabel("Wavelength (nm)")
 plt.ylabel("Scattering Intensity")
