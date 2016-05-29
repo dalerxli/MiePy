@@ -2,3 +2,8 @@
 *.sw*
 __pycache__
 todo.txt
+
+#setup files
+build
+dist
+*.egg-info

@@ -14,11 +14,42 @@ In the image below, scattering intensity is shown for a 100 nm radius dielectric
 </p>
 
 
+Usage
+--------------
+
+For examples and use cases, see examples folder
+
+For full documentation, see docs folder
+
+
+Installation
+--------------
+First, clone (or download) this repository and cd into it:
+
+```shell
+git clone https://github.com/johnaparker/MiePy && cd MiePy
+```
+
+Then, install MiePy via pip (or use just setuptools):
+
+```shell
+pip install .                    #using pip
+python setup.py install          #using just setuptools
+```
+
+To uninstall:
+
+```shell
+pip uninstall miepy 
+```
+
+To use MiePy without installation, add the MiePy directory to your PYTHONPATH
+
+
 Dependencies
 --------------
-Required Python modules: numpy, scipy, matplotlib, sympy (for core-shell)
-
-For installation of these, see https://www.scipy.org/install.html
+For installaltion: setuptools
+Required Python modules: numpy, scipy, matplotlib, sympy
 
 
 License
