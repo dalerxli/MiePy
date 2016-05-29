@@ -16,6 +16,7 @@ setup(
     packages=['miepy'],
     long_description=read('README.md'),
     install_requires=['numpy', 'scipy', 'matplotlib', 'sympy'],
+    include_package_data = True,
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Scientific/Engineering :: Physics",

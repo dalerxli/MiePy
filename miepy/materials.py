@@ -1,4 +1,5 @@
 import numpy as np
+import miepy
 
 class material:
     """Contains eps and mu as function of wavelength"""
@@ -33,3 +34,6 @@ def load_material(filename):
         mu = np.ones(Nfreq)
 
     return material(wav,eps,mu)
+
+def Ag():
+    return load_material(miepy.__path__[0] + "/materials/ag.dat")
