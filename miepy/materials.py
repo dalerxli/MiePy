@@ -16,9 +16,11 @@ def load_material(filename):
 
                  wavelength, eps_real, eps_imag, (mu_real, mu_imag)
 
+       or as a .npy file of shape (Nfreq, 3) or (Nfreq, 5)
+
        return a material object with the contents"""
 
-    data = np.loadtxt(filename) 
+    data = miepy.array_io.load(filename) 
     Nc = data.shape[1]     #number of columns
     Nfreq = data.shape[0]  #number of frequencies
 
@@ -36,4 +38,4 @@ def load_material(filename):
     return material(wav,eps,mu)
 
 def Ag():
-    return load_material(miepy.__path__[0] + "/materials/ag.dat")
+    return load_material(miepy.__path__[0] + "/materials/ag.npy")

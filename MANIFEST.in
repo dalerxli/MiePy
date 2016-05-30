@@ -1,1 +1,2 @@
 include miepy/materials/*.dat
+include miepy/materials/*.npy

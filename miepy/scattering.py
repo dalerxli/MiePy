@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import os
+import miepy
 
 
 label_map = {(0,0): 'eD', (0,1): 'eQ', (0,2): 'eO',
@@ -40,16 +40,16 @@ class multipoles:
 
     def scattering_array(self, nmax=None):
         """Get modal scattering intensity for all modes
-           Return scat[2,nmax,Nfreq]"""
+           Return scat[Nfreq,2,nmax]"""
 
         if nmax == None:
             nmax = np.inf
         nmax = min(self.an.shape[0], nmax)
 
-        scat = np.zeros([2,nmax,self.Nfreq])
+        scat = np.zeros([self.Nfreq,2,nmax])
         for n in range(1,nmax+1):
-            scat[0,n-1] = self.mode_scattering('e', n)
-            scat[1,n-1] = self.mode_scattering('m', n)
+            scat[:,0,n-1] = self.mode_scattering('e', n)
+            scat[:,1,n-1] = self.mode_scattering('m', n)
         return scat
 
     def scattering(self):
@@ -71,14 +71,14 @@ class multipoles:
     def plot_scattering_modes(self, nmax): 
         """Plot scattering due to each mode up to nmax"""
 
-        scat = self.scattering_array()
-        m_nmax = scat.shape[1]
+        modes = self.scattering_array()
+        m_nmax = modes.shape[1]
         nmax = min([nmax, m_nmax])
 
         for i,mtype in enumerate(('e','m')):
             for n in range(nmax):
                 label = get_label(i,n)
-                plt.plot(self.wav, scat[i,n], linewidth=2, label=label)
+                plt.plot(self.wav, modes[:,i,n], linewidth=2, label=label)
 
         plt.legend()
 
@@ -89,16 +89,12 @@ class multipoles:
 
         out_data = [wav,S,A]
         header = "Wavelength (nm){0}Scattering{0}Absorption"
-        for i in range(modes.shape[0]):
-            for j in range(modes.shape[1]):
-                out_data.append(modes[i,j])
+        for i in range(modes.shape[1]):
+            for j in range(modes.shape[2]):
+                out_data.append(modes[:,i,j])
                 header += "{0}" + get_label(i,j)
 
         header = header.format(delimiter)
-        out = np.array(out_data)
+        out = np.array(out_data).T
+        miepy.array_io.save(filename, out, delimiter, header)
 
-        file_extension = os.path.splitext(filename)[1]
-        if file_extension == ".npy":
-            np.save(filename, out)
-        else:
-            np.savetxt(filename, out.T, fmt = "%e", delimiter=delimiter, header=header)
