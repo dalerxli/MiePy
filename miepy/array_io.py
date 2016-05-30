@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-def save(filename, out, delimiter='\t', header=None):
+def save(filename, out, delimiter='\t', header=""):
     """Save numpy array 'out' at filename. If filename is .npy, file is binary, otherwise text"""
 
     file_extension = os.path.splitext(filename)[1]

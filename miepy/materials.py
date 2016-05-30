@@ -4,7 +4,6 @@ import miepy
 from scipy import constants
 
 
-
 class material:
     """Contains eps and mu (both complex) as function of wavelength"""
     def __init__(self,wav,eps,mu):
@@ -53,19 +52,23 @@ def load_material(filename):
 
 def save_material(filename, mat):
     """Output a material 'mat' to file 'filename' """
-    out = np.arrat([mat.wav, mat.eps.real, mat.eps.imag,
+    out = np.array([mat.wav, mat.eps.real, mat.eps.imag,
                     mat.mu.real, mat.mu.imag]).T
-    miepy.array_io.save(filename, out)
+    header = "Wavelength\teps_real\teps_imag\tmu_real\tmu_imag"
+    miepy.array_io.save(filename, out, header=header)
 
 
 
 def drude_lorentz(wp, sig, om, gam, wav):
-    """Create a material using a Drude-Lorentz function
-            wp    =  plasma frequency
-            sig   =  strength factors
-            om    =  resonant frequencies
-            gam   =  damping factors
-            wav   =  wavelengths"""
+    """Create a material using a Drude-Lorentz function.
+       All arguments must be in eV units, except wav (in nm).
+       Arguments should specify both eps & mu parameters.
+
+            wp    =  plasma frequency      (eV), [2] array
+            sig   =  strength factors      (eV), [2, #poles] array
+            om    =  resonant frequencies  (eV), [2, #poles] array
+            gam   =  damping factors       (eV), [2, #poles] array
+            wav   =  wavelengths           (nm), [Nfreq] array"""
 
     Nfreq = len(wav)
     size = len(sig)
@@ -74,8 +77,10 @@ def drude_lorentz(wp, sig, om, gam, wav):
     eps = np.ones(Nfreq, dtype=np.complex)
     mu = np.ones(Nfreq, dtype=np.complex)
     for i in range(size):
-        eps_add = sig[i]*wp**2/(om[i]**2 - omega**2 -1j*omega*gam[i])
+        eps_add = sig[0,i]*wp[0]**2/(om[0,i]**2 - omega**2 -1j*omega*gam[0,i])
+        mu_add = sig[1,i]*wp[1]**2/(om[1,i]**2 - omega**2 -1j*omega*gam[1,i])
         eps += eps_add
+        mu += mu_add
 
     return material(wav,eps,mu)
 
