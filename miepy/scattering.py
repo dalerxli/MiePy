@@ -77,7 +77,7 @@ class multipoles:
         """Plot scattering due to each mode up to nmax"""
 
         modes = self.scattering_array()
-        m_nmax = modes.shape[1]
+        m_nmax = modes.shape[2]
         nmax = min([nmax, m_nmax])
 
         for i,mtype in enumerate(('e','m')):
