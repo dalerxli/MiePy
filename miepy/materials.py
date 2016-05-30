@@ -50,6 +50,7 @@ def load_material(filename):
 
     return material(wav,eps,mu)
 
+
 def save_material(filename, mat):
     """Output a material 'mat' to file 'filename' """
     out = np.array([mat.wav, mat.eps.real, mat.eps.imag,
@@ -59,26 +60,44 @@ def save_material(filename, mat):
 
 
 
-def drude_lorentz(wp, sig, om, gam, wav):
+def drude_lorentz(wp, sig, f, gam, wav, magnetic_only=False):
     """Create a material using a Drude-Lorentz function.
        All arguments must be in eV units, except wav (in nm).
-       Arguments should specify both eps & mu parameters.
+
+       Arguments can be either 1D or 2D arrays: if 2D, eps/mu
+       are both specified. If 1D, eps or mu is specified,
+       depending on the variable magnetic_only.
 
             wp    =  plasma frequency      (eV), [2] array
             sig   =  strength factors      (eV), [2, #poles] array
-            om    =  resonant frequencies  (eV), [2, #poles] array
+            f     =  resonant frequencies  (eV), [2, #poles] array
             gam   =  damping factors       (eV), [2, #poles] array
-            wav   =  wavelengths           (nm), [Nfreq] array"""
+            wav   =  wavelengths           (nm), [Nfreq] array
+            magnetic_only   =  True if 1D array is to specify mu"""
+
+    #convert iterable input to numpy arrays if necessary
+    sig = np.asarray(sig)
+    f = np.asarray(f)
+    gam = np.asarray(gam)
+    wav = np.asarray(wav)
+
+    if len(sig.shape) == 1:
+        size = len(sig)
+        c = np.array([0,1]) if magnetic_only else np.array([1,0])
+        wp = np.array([wp,wp])*c
+        sig = np.array([sig,sig])
+        f = np.array([f,f])
+        gam = np.array([gam,gam])
 
     Nfreq = len(wav)
-    size = len(sig)
+    size = len(sig[0])
     omega = 2*np.pi*constants.c*constants.hbar/(constants.e*wav*1e-9)
 
     eps = np.ones(Nfreq, dtype=np.complex)
     mu = np.ones(Nfreq, dtype=np.complex)
     for i in range(size):
-        eps_add = sig[0,i]*wp[0]**2/(om[0,i]**2 - omega**2 -1j*omega*gam[0,i])
-        mu_add = sig[1,i]*wp[1]**2/(om[1,i]**2 - omega**2 -1j*omega*gam[1,i])
+        eps_add = sig[0,i]*wp[0]**2/(f[0,i]**2 - omega**2 -1j*omega*gam[0,i])
+        mu_add = sig[1,i]*wp[1]**2/(f[1,i]**2 - omega**2 -1j*omega*gam[1,i])
         eps += eps_add
         mu += mu_add
 
@@ -94,3 +113,7 @@ def Ag():
     gam  = [0.01241231, 0.54965831]
     wav = np.linspace(300,1100,1000)
     return drude_lorentz(wp,sig,f,gam,wav)
+
+def Au():
+    """Return gold material from MiePy Ag data"""
+    return load_material(miepy.__path__[0] + "/materials/au.dat")
