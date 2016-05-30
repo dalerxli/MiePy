@@ -1,6 +1,11 @@
+"""
+Example of how to make a dielectric material and plot scattering,
+absorption, and scattering per multipole
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
-from miepy.materials import material, load_material
+from miepy.materials import material
 from miepy import sphere
 
 #wavelength from 400nm to 1000nm

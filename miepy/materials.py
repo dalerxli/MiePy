@@ -22,10 +22,10 @@ class material:
 
 def plot_material(mat):
     """Plot material properties of 'mat' """
-    plt.plot(mat.wav, mat.eps.real, linewidth=2, label="eps real")
-    plt.plot(mat.wav, mat.eps.imag, linewidth=2, label="eps imag")
-    plt.plot(mat.wav, mat.mu.real, linewidth=2, label="mu real")
-    plt.plot(mat.wav, mat.mu.imag, linewidth=2, label="mu imag")
+    plt.plot(mat.wav, mat.eps.real, 'b', linewidth=2, label="eps real")
+    plt.plot(mat.wav, mat.eps.imag, 'b--', linewidth=2, label="eps imag")
+    plt.plot(mat.wav, mat.mu.real, 'r', linewidth=2, label="mu real")
+    plt.plot(mat.wav, mat.mu.imag, 'r--', linewidth=2, label="mu imag")
     plt.xlabel("Wavelength (nm)")
     plt.ylabel("eps/mu")
     plt.legend()
