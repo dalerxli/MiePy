@@ -1,3 +1,6 @@
+"""
+mie_sphere calculates the scattering coefficients of a sphere using Mie theory
+"""
 import numpy as np
 from miepy.scattering import multipoles
 from miepy.special_functions import riccati_1,riccati_2

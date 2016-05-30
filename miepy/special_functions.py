@@ -1,3 +1,7 @@
+"""
+special_functions defines any additional special functions needed by MiePy
+"""
+
 import numpy as np
 from scipy import special
 

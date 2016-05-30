@@ -9,7 +9,10 @@
 <font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="miepy.html"><font color="#ffffff">miepy</font></a>.materials</strong></big></big></font></td
 ><td align=right valign=bottom
 ><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/john/research/MiePy/miepy/materials.py">/home/john/research/MiePy/miepy/materials.py</a></font></td></tr></table>
-    <p></p>
+    <p><tt>materials&nbsp;defines&nbsp;the&nbsp;<a href="#material">material</a>&nbsp;class,&nbsp;containing&nbsp;eps&nbsp;and&nbsp;mu&nbsp;data&nbsp;as&nbsp;a&nbsp;function&nbsp;of&nbsp;wavelength<br>
+&nbsp;<br>
+Additional&nbsp;functions&nbsp;are&nbsp;supplied&nbsp;to&nbsp;create&nbsp;different&nbsp;kinds&nbsp;of&nbsp;materials:&nbsp;from&nbsp;files,&nbsp;by&nbsp;<br>
+a&nbsp;drude-lorentz&nbsp;model,&nbsp;or&nbsp;some&nbsp;of&nbsp;the&nbsp;MiePy&nbsp;built-in&nbsp;materials</tt></p>
 <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#aa55cc">
@@ -17,8 +20,11 @@
 <font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
     
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
-</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="scipy.constants.html">scipy.constants</a><br>
+</td><td width="25%" valign=top><a href="miepy.html">miepy</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="matplotlib.pyplot.html">matplotlib.pyplot</a><br>
+</td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ee77aa">
 <td colspan=3 valign=bottom>&nbsp;<br>
@@ -40,7 +46,7 @@
 <font color="#000000" face="helvetica, arial"><a name="material">class <strong>material</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
     
 <tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
-<td colspan=2><tt>Contains&nbsp;eps&nbsp;and&nbsp;mu&nbsp;as&nbsp;function&nbsp;of&nbsp;wavelength<br>&nbsp;</tt></td></tr>
+<td colspan=2><tt>Contains&nbsp;eps&nbsp;and&nbsp;mu&nbsp;(both&nbsp;complex)&nbsp;as&nbsp;function&nbsp;of&nbsp;wavelength<br>&nbsp;</tt></td></tr>
 <tr><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
 <dl><dt><a name="material-__init__"><strong>__init__</strong></a>(self, wav, eps, mu)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
@@ -60,10 +66,29 @@ Data descriptors defined here:<br>
 <font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
     
 <tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><dl><dt><a name="-load_material"><strong>load_material</strong></a>(filename)</dt><dd><tt>Given&nbsp;a&nbsp;filename&nbsp;containing&nbsp;the&nbsp;following&nbsp;columns&nbsp;(separated&nbsp;by&nbsp;any&nbsp;whitespace,&nbsp;and&nbsp;the&nbsp;last&nbsp;two&nbsp;columns&nbsp;optional):<br>
+<td width="100%"><dl><dt><a name="-Ag"><strong>Ag</strong></a>()</dt><dd><tt>Return&nbsp;silver&nbsp;<a href="#material">material</a>&nbsp;from&nbsp;MiePy&nbsp;Ag&nbsp;data</tt></dd></dl>
+ <dl><dt><a name="-Au"><strong>Au</strong></a>()</dt><dd><tt>Return&nbsp;gold&nbsp;<a href="#material">material</a>&nbsp;from&nbsp;MiePy&nbsp;Ag&nbsp;data</tt></dd></dl>
+ <dl><dt><a name="-drude_lorentz"><strong>drude_lorentz</strong></a>(wp, sig, f, gam, wav, magnetic_only=False)</dt><dd><tt>Create&nbsp;a&nbsp;<a href="#material">material</a>&nbsp;using&nbsp;a&nbsp;Drude-Lorentz&nbsp;function.<br>
+All&nbsp;arguments&nbsp;must&nbsp;be&nbsp;in&nbsp;eV&nbsp;units,&nbsp;except&nbsp;wav&nbsp;(in&nbsp;nm).<br>
+&nbsp;<br>
+Arguments&nbsp;can&nbsp;be&nbsp;either&nbsp;1D&nbsp;or&nbsp;2D&nbsp;arrays:&nbsp;if&nbsp;2D,&nbsp;eps/mu<br>
+are&nbsp;both&nbsp;specified.&nbsp;If&nbsp;1D,&nbsp;eps&nbsp;or&nbsp;mu&nbsp;is&nbsp;specified,<br>
+depending&nbsp;on&nbsp;the&nbsp;variable&nbsp;magnetic_only.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wp&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;plasma&nbsp;frequency&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(eV),&nbsp;[2]&nbsp;array<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sig&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;strength&nbsp;factors&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(eV),&nbsp;[2,&nbsp;#poles]&nbsp;array<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;resonant&nbsp;frequencies&nbsp;&nbsp;(eV),&nbsp;[2,&nbsp;#poles]&nbsp;array<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gam&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;damping&nbsp;factors&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(eV),&nbsp;[2,&nbsp;#poles]&nbsp;array<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wav&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;wavelengths&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(nm),&nbsp;[Nfreq]&nbsp;array<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;magnetic_only&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;True&nbsp;if&nbsp;1D&nbsp;array&nbsp;is&nbsp;to&nbsp;specify&nbsp;mu</tt></dd></dl>
+ <dl><dt><a name="-load_material"><strong>load_material</strong></a>(filename)</dt><dd><tt>Given&nbsp;a&nbsp;filename&nbsp;containing&nbsp;the&nbsp;following&nbsp;columns&nbsp;(separated&nbsp;by&nbsp;any&nbsp;whitespace,&nbsp;and&nbsp;the&nbsp;last&nbsp;two&nbsp;columns&nbsp;optional):<br>
 &nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wavelength,&nbsp;eps_real,&nbsp;eps_imag,&nbsp;(mu_real,&nbsp;mu_imag)<br>
 &nbsp;<br>
+or&nbsp;as&nbsp;a&nbsp;.npy&nbsp;file&nbsp;of&nbsp;shape&nbsp;(Nfreq,&nbsp;3)&nbsp;or&nbsp;(Nfreq,&nbsp;5)<br>
+&nbsp;<br>
 return&nbsp;a&nbsp;<a href="#material">material</a>&nbsp;<a href="builtins.html#object">object</a>&nbsp;with&nbsp;the&nbsp;contents</tt></dd></dl>
+ <dl><dt><a name="-plot_material"><strong>plot_material</strong></a>(mat)</dt><dd><tt>Plot&nbsp;<a href="#material">material</a>&nbsp;properties&nbsp;of&nbsp;'mat'</tt></dd></dl>
+ <dl><dt><a name="-save_material"><strong>save_material</strong></a>(filename, mat)</dt><dd><tt>Output&nbsp;a&nbsp;<a href="#material">material</a>&nbsp;'mat'&nbsp;to&nbsp;file&nbsp;'filename'</tt></dd></dl>
 </td></tr></table>
 </body></html>

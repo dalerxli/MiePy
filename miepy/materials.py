@@ -1,3 +1,10 @@
+"""
+materials defines the material class, containing eps and mu data as a function of wavelength
+
+Additional functions are supplied to create different kinds of materials: from files, by 
+a drude-lorentz model, or some of the MiePy built-in materials
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 import miepy

@@ -1,3 +1,8 @@
+"""
+scattering defines class multipoles, used to analyze scattering & absorption
+properties of some object given its an, bn coefficients
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 import miepy

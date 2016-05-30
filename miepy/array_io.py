@@ -1,3 +1,9 @@
+"""
+array_io defines functions to save and load numpy arrays in a format convenient for MiePy.
+
+Any numpy array can be saved or loaded, but more commonly called functions would be 
+load_material and save_material in materials, and multipoles.save in scattering.
+"""
 import os
 import numpy as np
 
