@@ -1,13 +1,27 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 
 label_map = {(0,0): 'eD', (0,1): 'eQ', (0,2): 'eO',
          (1,0): 'mD', (1,1): 'mQ', (1,2): 'mO'}
 
+def get_label(i,n):
+    """Get multipole label.
+            i = 0 (electric), 1(magnetic)
+            n = 1,2,3... (order)"""
+
+    mtype = 'e' if i == 0 else 'm'
+    if n < 3:
+        label = label_map[(i,n)]
+    else:
+        label = mtype + str(2**(n+1))
+    return label
+
 class multipoles:
     """Contains an and bn as function of wavelength
        Used to calculate scattering/absorption properties"""
+
     def __init__(self, wav, an, bn):
         self.Nfreq = len(wav)
         self.wav = wav
@@ -24,11 +38,14 @@ class multipoles:
         cn = self.an if mtype=='e' else self.bn
         return 2*np.pi*(2*n+1)*np.abs(cn[n-1])**2/self.k**2
 
-    def scattering_array(self):
+    def scattering_array(self, nmax=None):
         """Get modal scattering intensity for all modes
            Return scat[2,nmax,Nfreq]"""
 
-        nmax = self.an.shape[0]
+        if nmax == None:
+            nmax = np.inf
+        nmax = min(self.an.shape[0], nmax)
+
         scat = np.zeros([2,nmax,self.Nfreq])
         for n in range(1,nmax+1):
             scat[0,n-1] = self.mode_scattering('e', n)
@@ -60,10 +77,28 @@ class multipoles:
 
         for i,mtype in enumerate(('e','m')):
             for n in range(nmax):
-                if n < 3:
-                    label = label_map[(i,n)]
-                else:
-                    label = mtype + str(2**(n+1))
+                label = get_label(i,n)
                 plt.plot(self.wav, scat[i,n], linewidth=2, label=label)
 
         plt.legend()
+
+    def save(self, filename, nmax = 0, delimiter='\t'):
+        wav = self.wav
+        S,A = self.scattering()
+        modes = self.scattering_array(nmax)
+
+        out_data = [wav,S,A]
+        header = "Wavelength (nm){0}Scattering{0}Absorption"
+        for i in range(modes.shape[0]):
+            for j in range(modes.shape[1]):
+                out_data.append(modes[i,j])
+                header += "{0}" + get_label(i,j)
+
+        header = header.format(delimiter)
+        out = np.array(out_data)
+
+        file_extension = os.path.splitext(filename)[1]
+        if file_extension == ".npy":
+            np.save(filename, out)
+        else:
+            np.savetxt(filename, out.T, fmt = "%e", delimiter=delimiter, header=header)
