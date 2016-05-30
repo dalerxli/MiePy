@@ -37,5 +37,12 @@ def load_material(filename):
 
     return material(wav,eps,mu)
 
+def save_material(filename, mat):
+    """Output a material 'mat' to file 'filename' """
+    out = np.arrat([mat.wav, mat.eps.real, mat.eps.imag,
+                    mat.mu.real, mat.mu.imag]).T
+    miepy.array_io.save(filename, out)
+
 def Ag():
+    """Return silver material from MiePy Ag data"""
     return load_material(miepy.__path__[0] + "/materials/ag.npy")
