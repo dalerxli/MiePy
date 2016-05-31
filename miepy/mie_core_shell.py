@@ -4,30 +4,32 @@ mie_core_shell calculates the scattering coefficients of a core-shell structure 
 
 import numpy as np
 from miepy.scattering import multipoles
-from miepy.special_functions import riccati_1,riccati_2,riccati_3
-R1 = riccati_1
-R2 = riccati_2
-R3 = riccati_3
+from miepy.special_functions import riccati_1_single,riccati_2_single,riccati_3_single
+R1 = riccati_1_single
+R2 = riccati_2_single
+R3 = riccati_3_single
 
 def M_matrix(m1,m2,x,y,mu,mu1,mu2,n):
     
-    M = np.zeros([8,8], dtype=np.complex)
-    M[0] = np.array([0,0, -m2*R1(n,m1*x)[0][n],0, m1*R1(n,m2*x)[0][n],0, -m1*R3(n,m2*x)[0][n],0])
-    M[1] = np.array([0,0,0, m2*R1(n,m1*x)[1][n],0, -m1*R1(n,m2*x)[1][n],0, m1*R3(n,m2*x)[1][n]])
-    M[2] = np.array([0,0, mu2*R1(n,m1*x)[1][n],0, -mu1*R1(n,m2*x)[1][n],0, mu1*R3(n,m2*x)[1][n],0])
-    M[3] = np.array([0,0,0, -mu2*R1(n,m1*x)[0][n],0, mu1*R1(n,m2*x)[0][n],0, -mu1*R3(n,m2*x)[0][n]])
-    M[4] = np.array([-m2*R2(n,y)[1][n],0,0,0,0, -R1(n,m2*y)[1][n],0, R3(n,m2*y)[1][n]])
-    M[5] = np.array([0, m2*R2(n,y)[0][n],0,0, R1(n,m2*y)[0][n],0, -R3(n,m2*y)[0][n],0])
-    M[6] = np.array([-mu2*R2(n,y)[0][n],0,0,0,0, -mu*R1(n,m2*y)[0][n],0, mu*R3(n,m2*y)[0][n]])
-    M[7] = np.array([0, mu2*R2(n,y)[1][n],0,0, mu*R1(n,m2*y)[1][n],0, -mu*R3(n,m2*y)[1][n],0])
+    M = np.zeros([8,8,len(m1)], dtype=np.complex)
+    z = np.zeros(len(m1))
+    M[0] = np.array([z,z, -m2*R1(n,m1*x)[0],z, m1*R1(n,m2*x)[0],z, -m1*R3(n,m2*x)[0],z])
+    M[1] = np.array([z,z,z, m2*R1(n,m1*x)[1],z, -m1*R1(n,m2*x)[1],z, m1*R3(n,m2*x)[1]])
+    M[2] = np.array([z,z, mu2*R1(n,m1*x)[1],z, -mu1*R1(n,m2*x)[1],z, mu1*R3(n,m2*x)[1],z])
+    M[3] = np.array([z,z,z, -mu2*R1(n,m1*x)[0],z, mu1*R1(n,m2*x)[0],z, -mu1*R3(n,m2*x)[0]])
+    M[4] = np.array([-m2*R2(n,y)[1],z,z,z,z, -R1(n,m2*y)[1],z, R3(n,m2*y)[1]])
+    M[5] = np.array([z, m2*R2(n,y)[0],z,z, R1(n,m2*y)[0],z, -R3(n,m2*y)[0],z])
+    M[6] = np.array([-mu2*R2(n,y)[0],z,z,z,z, -mu*R1(n,m2*y)[0],z, mu*R3(n,m2*y)[0]])
+    M[7] = np.array([z, mu2*R2(n,y)[1],z,z, mu*R1(n,m2*y)[1],z, -mu*R3(n,m2*y)[1],z])
 
-    return M
+    return np.transpose(M, (2,0,1))
 
 def c_values(m2,y,mu2,n):
 
-    c = np.zeros(8, dtype=np.complex)
-    c = np.array([0,0,0,0, -m2*R1(n,y)[1][n], m2*R1(n,y)[0][n], -mu2*R1(n,y)[0][n], mu2*R1(n,y)[1][n]])
-    return c
+    z = np.zeros(len(m2))
+    c = np.zeros([8,len(m2)], dtype=np.complex)
+    c = np.array([z,z,z,z, -m2*R1(n,y)[1], m2*R1(n,y)[0], -mu2*R1(n,y)[0], mu2*R1(n,y)[1]])
+    return np.transpose(c)
 
 def get_index(mat):
     return (mat.eps*mat.mu)**.5
@@ -57,16 +59,15 @@ def core_shell(nmax, mat_in, mat_out,  r_in, r_out, eps_b=1, mu_b=1):
     an = np.zeros((nmax,Nfreq), dtype=np.complex)
     bn = np.zeros((nmax,Nfreq), dtype=np.complex)
 
-    for i in range(Nfreq):
-        for n in range(nmax):
-            M = M_matrix(m1[i],m2[i],xvals[i],yvals[i],mu_b,mat_in.mu[i],mat_out.mu[i],n+1)
-            c = c_values(m2[i],yvals[i],mat_out.mu[i],n+1)
-            sol = np.linalg.solve(M,c)
-            a = sol[0]
-            b = sol[1]
+    for n in range(nmax):
+        M = M_matrix(m1,m2,xvals,yvals,mu_b,mat_in.mu,mat_out.mu,n+1)
+        c = c_values(m2,yvals,mat_out.mu,n+1)
+        sol = np.linalg.solve(M,c)
+        a = sol[:,0]
+        b = sol[:,1]
 
-            an[n,i] = a
-            bn[n,i] = b
+        an[n,:] = a
+        bn[n,:] = b
     
     an = np.nan_to_num(an)
     bn = np.nan_to_num(bn)
