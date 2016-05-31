@@ -15,7 +15,7 @@ setup(
     url = "http://packages.python.org/an_example_pypi_project",
     packages=['miepy'],
     long_description=read('README.md'),
-    install_requires=['numpy', 'scipy', 'matplotlib', 'sympy'],
+    install_requires=['numpy', 'scipy', 'matplotlib'],
     include_package_data = True,
     classifiers=[
         "Development Status :: 3 - Alpha",

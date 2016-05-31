@@ -50,7 +50,7 @@ Dependencies
 --------------
 For installaltion: setuptools
 
-Required Python modules: numpy, scipy, matplotlib, sympy
+Required Python modules: numpy, scipy, matplotlib
 
 
 License
