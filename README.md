@@ -5,7 +5,7 @@ MiePy is a Python module to calculate scattering and absorption properties of sp
 The material can be specified by a frequency dependent permittivity and permeability.
 
 
-Images
+Sample Output
 --------------
 In the image below, scattering intensity is shown for a 100 nm radius dielectric sphere with refractive index n = 3.7. Individual contributions from different multipoles are also shown (eD = electric dipole, etc.).
 

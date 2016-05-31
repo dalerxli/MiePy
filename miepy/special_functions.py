@@ -28,3 +28,14 @@ def riccati_2(nmax,x):
     r0 = x*hn
     r1 = hn + x*hnp
     return np.array([r0,r1])
+
+def riccati_3(nmax,x):
+    """Riccati bessel function of the 3rd kind
+
+       returns (r3, r3'), n=0,1,...,nmax"""
+
+    yn,ynp = special.sph_yn(nmax,x)
+
+    r0 = x*yn
+    r1 = yn + x*ynp
+    return np.array([r0,r1])
