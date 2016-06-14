@@ -123,4 +123,12 @@ def Ag():
 
 def Au():
     """Return gold material from MiePy Ag data"""
-    return load_material(miepy.__path__[0] + "/materials/au.dat")
+    # return load_material(miepy.__path__[0] + "/materials/au.dat")
+
+    wp = 9.01
+    sig = [0.91765493, 1.47444698]
+    gam  = [0.03145002, 3.27922159]
+    f = [0, 4.61436431]
+    wav = np.linspace(300,1100,1000)
+    return drude_lorentz(wp,sig,f,gam,wav)
+
