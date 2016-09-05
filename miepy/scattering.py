@@ -6,6 +6,7 @@ properties of some object given its an, bn coefficients
 import numpy as np
 import matplotlib.pyplot as plt
 import miepy
+import scipy.constants as constants
 
 
 label_map = {(0,0): 'eD', (0,1): 'eQ', (0,2): 'eO',
@@ -29,7 +30,8 @@ class multipoles:
 
     def __init__(self, wav, an, bn):
         self.Nfreq = len(wav)
-        self.wav = wav
+        self.wav = wav  # in nm
+        self.energy = constants.h*constants.c*1e9/self.wav/constants.e  # in eV
         self.an = an
         self.bn = bn
         self.k = 2*np.pi/wav
@@ -83,7 +85,7 @@ class multipoles:
         for i,mtype in enumerate(('e','m')):
             for n in range(nmax):
                 label = get_label(i,n)
-                plt.plot(self.wav, modes[:,i,n], linewidth=2, label=label)
+                plt.plot(self.energy, modes[:,i,n], linewidth=2, label=label)
 
         plt.legend()
 
