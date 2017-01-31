@@ -47,20 +47,25 @@ def pi_tau_func(n):
     # if np.sin(theta) == 0: return 0
     lpn = special.legendre(n)
     lpn_p = lpn.deriv()
+    lpn_p2 = lpn_p.deriv()
 
     def pi_func(theta):
-        with np.errstate(divide='ignore', invalid='ignore'):
-            pi_func = lpn(np.cos(theta))/np.sin(theta)
-            pi_func[pi_func == np.inf] = 0
-            pi_func = np.nan_to_num(pi_func)
+        return -1*lpn_p(np.cos(theta))
+        # with np.errstate(divide='ignore', invalid='ignore'):
+            # val = lpn(np.cos(theta))/np.sin(theta)
+            # val[val == np.inf] = 0
+            # val = np.nan_to_num(val)
+            # return val
 
     def tau_func(theta):
-        tau_func = -1*np.sin(theta)*lpn_p(np.cos(theta))
+        # val = -1*np.sin(theta)*lpn_p(np.cos(theta))
+        val = -1*np.cos(theta)*lpn_p(np.cos(theta)) + np.sin(theta)**2*lpn_p2(np.cos(theta))
+        return val
 
     return pi_func, tau_func 
 
 class vector_spherical_harmonics:
-    def __init__(self, n, superscript=1):
+    def __init__(self, n, superscript=3):
         self.pi_func, self.tau_func = pi_tau_func(n)
         self.n = n
 
@@ -132,5 +137,30 @@ def riccati_3_single(n,x):
 
 
 if __name__ == "__main__":
-    theta = np.linspace(0,1,5)
-    print(pi_tau_func(3,theta))
+    VCS = vector_spherical_harmonics(3, superscript=3)
+    dipole = VCS.N_e1n(1)
+
+    eps = 0.01
+    theta = np.linspace(eps, np.pi-eps,60)
+    phi = np.linspace(eps, 2*np.pi-eps,90)
+    r = np.array([500])
+
+    R, THETA, PHI = np.meshgrid(r, theta, phi, indexing='xy')
+    print(R.shape)
+    print(THETA.shape)
+    print(PHI.shape)
+    E_far = dipole(R, THETA, PHI)
+    E_far = np.squeeze(E_far)
+    I = np.sum(np.abs(E_far)**2, axis=0)
+
+    import matplotlib.pyplot as plt
+    plt.figure(1)
+    plt.pcolormesh(np.squeeze(THETA),np.squeeze(PHI),I)
+    plt.xlabel('theta')
+    plt.ylabel('phi')
+    plt.colorbar()
+
+    plt.figure(2)
+    plt.plot(theta, VCS.pi_func(theta))
+
+    plt.show()
