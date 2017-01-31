@@ -14,7 +14,7 @@ silver = Ag()     #material object
 #calculate scattering coefficients
 rad = 200       # 200 nm radius
 Nmax = 10       # Use up to 10 multipoles
-m = sphere(Nmax, silver, rad) #scattering object
+m = sphere(Nmax, silver, rad).scattering() #scattering object
 
 # Figure 1: Ag eps & mu data
 plt.figure(1)

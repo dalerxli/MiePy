@@ -19,7 +19,7 @@ dielectric = material(wav,eps,mu)     #material object
 #calculate scattering coefficients
 rad = 100       # 100 nm radius
 Nmax = 10       # Use up to 10 multipoles
-m = sphere(Nmax, dielectric, rad) #scattering object
+m = sphere(Nmax, dielectric, rad).scattering() #scattering object
 
 # Figure 1: Scattering and Absorption
 plt.figure(1)
