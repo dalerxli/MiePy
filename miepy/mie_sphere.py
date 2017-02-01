@@ -75,7 +75,6 @@ class sphere:
         if not Nmax: Nmax = self.nmax
         if not self.interior_computed: self.compute_cd()
         if not self.exterior_computed: self.scattering()
-        k = self.mat.k[k_index]
 
         def E_func(r, theta, phi):
             E = np.zeros(shape = [3] + list(r.shape), dtype=np.complex)
@@ -89,13 +88,15 @@ class sphere:
                 cn = self.cn[n-1, k_index]
                 dn = self.dn[n-1, k_index]
 
+                k = self.mat.k[k_index]*self.eps_b**.5
                 VSH = vector_spherical_harmonics(n,3)
-                E[~id_inside] += En*(1j*an*VSH.N_e1n(k)(r[~id_inside],theta[~id_inside],phi[~id_inside])  \
+                E[:,~id_inside] += En*(1j*an*VSH.N_e1n(k)(r[~id_inside],theta[~id_inside],phi[~id_inside])  \
                                 - bn*VSH.M_o1n(k)(r[~id_inside],theta[~id_inside],phi[~id_inside]))
 
+                k = self.mat.k[k_index]*self.mat.eps[k_index]**.5
                 VSH = vector_spherical_harmonics(n,1)
-                E[id_inside] += En*(cn*VSH.M_o1n(k)(r[id_inside],theta[id_inside],phi[id_inside])  \
-                                - 1j*dn*VSH.Ne1n(k)(r[id_inside],theta[id_inside],phi[id_inside]))
+                E[:,id_inside] += En*(cn*VSH.M_o1n(k)(r[id_inside],theta[id_inside],phi[id_inside])  \
+                                - 1j*dn*VSH.N_e1n(k)(r[id_inside],theta[id_inside],phi[id_inside]))
 
             return E
 
