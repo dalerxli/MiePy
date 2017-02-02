@@ -22,6 +22,7 @@ class sphere:
         self.eps_b = eps_b
         self.mu_b = mu_b
         self.nmax = nmax
+        self.energy = mat.energy
 
         self.an = np.zeros((nmax,mat.Nfreq), dtype=np.complex)
         self.bn = np.zeros((nmax,mat.Nfreq), dtype=np.complex)
@@ -29,7 +30,6 @@ class sphere:
         self.dn = np.zeros((nmax,mat.Nfreq), dtype=np.complex)
 
         self.exterior_computed = False
-        self.interior_computed = False
     
     def scattering(self):
         xvals = self.mat.k*self.r*self.n_b

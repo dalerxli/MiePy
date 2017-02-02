@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import miepy
 import scipy.constants as constants
+from post_fdtd.functions.units import wav_to_energy
 
 
 label_map = {(0,0): 'eD', (0,1): 'eQ', (0,2): 'eO',
@@ -30,8 +31,7 @@ class multipoles:
 
     def __init__(self, wav, an, bn):
         self.Nfreq = len(wav)
-        self.wav = wav  # in nm
-        self.energy = constants.h*constants.c*1e9/self.wav/constants.e  # in eV
+        self.energy = wav_to_energy(wav)
         self.an = an
         self.bn = bn
         self.k = 2*np.pi/wav
