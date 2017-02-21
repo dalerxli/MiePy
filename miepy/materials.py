@@ -14,7 +14,15 @@ from post_fdtd.functions.units import wav_to_energy
 
 class material:
     """Contains eps and mu (both complex) as function of wavelength"""
-    def __init__(self,wav,eps,mu):
+
+    def __init__(self,wav,eps,mu = None):
+        """ Create a new material
+                wav[N]            wavelengths (in nm)
+                eps[N][complex]   complex permitivitty
+                mu[N][complex]    complex permeability (default = 1)   """
+
+        if mu == None:
+            mu = np.ones(shape = eps.shape)
         self.Nfreq = len(wav)
         self.wav = wav
         self.eps = eps
