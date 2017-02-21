@@ -21,8 +21,9 @@ class material:
                 eps[N][complex]   complex permitivitty
                 mu[N][complex]    complex permeability (default = 1)   """
 
-        if mu == None:
+        if mu is None:
             mu = np.ones(shape = eps.shape)
+
         self.Nfreq = len(wav)
         self.wav = wav
         self.eps = eps
