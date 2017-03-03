@@ -30,6 +30,7 @@ class sphere:
         self.dn = np.zeros((nmax,mat.Nfreq), dtype=np.complex)
 
         self.exterior_computed = False
+        self.interior_computed = False
     
     def scattering(self):
         xvals = self.mat.k*self.r*self.n_b
@@ -49,7 +50,7 @@ class sphere:
         self.bn = np.nan_to_num(self.bn)
 
         self.exterior_computed = True
-        return multipoles(self.mat.wav,self.an,self.bn) 
+        return multipoles(self.mat.wav, self.n_b, self.an, self.bn) 
 
     def compute_cd(self):
         xvals = self.mat.k*self.r*self.n_b

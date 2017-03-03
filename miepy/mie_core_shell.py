@@ -71,4 +71,4 @@ def core_shell(nmax, mat_in, mat_out,  r_in, r_out, eps_b=1, mu_b=1):
     
     an = np.nan_to_num(an)
     bn = np.nan_to_num(bn)
-    return multipoles(mat_in.wav,an,bn) 
+    return multipoles(mat_in.wav, nb, an,bn) 

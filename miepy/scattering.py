@@ -29,12 +29,17 @@ class multipoles:
     """Contains an and bn as function of wavelength
        Used to calculate scattering/absorption properties"""
 
-    def __init__(self, wav, an, bn):
+    def __init__(self, wav, n_b,  an, bn):
+        """     wav[N]       wavelength
+                n_b          background index
+                an[N]        a scattering coefficients
+                bn[N]        b scattering coefficients    """
+
         self.Nfreq = len(wav)
         self.energy = wav_to_energy(wav)
         self.an = an
         self.bn = bn
-        self.k = 2*np.pi/wav
+        self.k = 2*np.pi*n_b/wav
 
     def mode_scattering(self, mtype, n):
         """Get modal scattering intensity
