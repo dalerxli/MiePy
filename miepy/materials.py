@@ -9,8 +9,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import miepy
 from scipy import constants
-from post_fdtd.functions.units import wav_to_energy
-
 
 class material:
     """Contains eps and mu (both complex) as function of wavelength"""
@@ -29,7 +27,7 @@ class material:
         self.eps = eps
         self.mu = mu
         self.k = 2*np.pi/wav
-        self.energy = wav_to_energy(wav)
+        self.energy = constants.h*constants.c*1e9/wav/constants.e  # in eV 
 
 def plot_material(mat):
     """Plot material properties of 'mat' """

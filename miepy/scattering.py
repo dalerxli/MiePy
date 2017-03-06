@@ -7,8 +7,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import miepy
 import scipy.constants as constants
-from post_fdtd.functions.units import wav_to_energy
-
 
 label_map = {(0,0): 'eD', (0,1): 'eQ', (0,2): 'eO',
          (1,0): 'mD', (1,1): 'mQ', (1,2): 'mO'}
@@ -36,7 +34,7 @@ class multipoles:
                 bn[N]        b scattering coefficients    """
 
         self.Nfreq = len(wav)
-        self.energy = wav_to_energy(wav)
+        self.nergy = constants.h*constants.c*1e9/wav/constants.e  # in eV 
         self.an = an
         self.bn = bn
         self.k = 2*np.pi*n_b/wav
