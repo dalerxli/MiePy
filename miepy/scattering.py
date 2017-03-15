@@ -34,7 +34,7 @@ class multipoles:
                 bn[N]        b scattering coefficients    """
 
         self.Nfreq = len(wav)
-        self.nergy = constants.h*constants.c*1e9/wav/constants.e  # in eV 
+        self.energy = constants.h*constants.c*1e9/wav/constants.e  # in eV 
         self.an = an
         self.bn = bn
         self.k = 2*np.pi*n_b/wav
