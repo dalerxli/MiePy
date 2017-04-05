@@ -76,7 +76,7 @@ def save_material(filename, mat):
 
 
 
-def drude_lorentz(wp, sig, f, gam, wav, magnetic_only=False):
+def drude_lorentz(wp, sig, f, gam, wav, magnetic_only=False, eps_inf=1):
     """Create a material using a Drude-Lorentz function.
        All arguments must be in eV units, except wav (in nm).
 
@@ -109,7 +109,7 @@ def drude_lorentz(wp, sig, f, gam, wav, magnetic_only=False):
     size = len(sig[0])
     omega = 2*np.pi*constants.c*constants.hbar/(constants.e*wav*1e-9)
 
-    eps = np.ones(Nfreq, dtype=np.complex)
+    eps = eps_inf*np.ones(Nfreq, dtype=np.complex)
     mu = np.ones(Nfreq, dtype=np.complex)
     for i in range(size):
         eps_add = sig[0,i]*wp[0]**2/(f[0,i]**2 - omega**2 -1j*omega*gam[0,i])
