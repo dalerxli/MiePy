@@ -73,6 +73,7 @@ class sphere:
         self.interior_computed = True
 
     def E_field(self, k_index, Nmax = None):
+        """Return an electric field function E(r,theta,phi) for a given wavenumber index"""
         if not Nmax: Nmax = self.nmax
         if not self.interior_computed: self.compute_cd()
         if not self.exterior_computed: self.scattering()
@@ -103,3 +104,36 @@ class sphere:
 
         return E_func
 
+    def H_field(self, k_index, Nmax = None):
+        """Return a magnetic field function H(r,theta,phi) for a given wavenumber index"""
+        if not Nmax: Nmax = self.nmax
+        if not self.interior_computed: self.compute_cd()
+        if not self.exterior_computed: self.scattering()
+
+        def H_func(r, theta, phi):
+            H = np.zeros(shape = [3] + list(r.shape), dtype=np.complex)
+            id_inside = r <= self.r
+
+            for n in range(1,Nmax+1):
+                En = 1j**n*(2*n+1)/(n*(n+1))
+
+                an = self.an[n-1, k_index]
+                bn = self.bn[n-1, k_index]
+                cn = self.cn[n-1, k_index]
+                dn = self.dn[n-1, k_index]
+
+                k = self.mat.k[k_index]*self.eps_b**.5
+                omega = self.mat.k[k_index]  # FIX THIS
+                VSH = vector_spherical_harmonics(n,3)
+                H[:,~id_inside] += k*En/(omega*self.mu_b)*(1j*bn*VSH.N_o1n(k)(r[~id_inside],theta[~id_inside],phi[~id_inside])  \
+                                + an*VSH.M_e1n(k)(r[~id_inside],theta[~id_inside],phi[~id_inside]))
+
+                k = self.mat.k[k_index]*self.mat.eps[k_index]**.5
+                mu = self.mat.mu[k_index]
+                VSH = vector_spherical_harmonics(n,1)
+                H[:,id_inside] += -k*En/(omega*mu)*(dn*VSH.M_e1n(k)(r[id_inside],theta[id_inside],phi[id_inside])  \
+                                + 1j*cn*VSH.N_o1n(k)(r[id_inside],theta[id_inside],phi[id_inside]))
+
+            return H
+
+        return H_func
