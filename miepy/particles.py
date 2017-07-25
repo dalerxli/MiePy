@@ -89,7 +89,7 @@ class particle:
     def force(self, other_particles = []):
         r = np.array([self.radius + 1])
         tau = np.linspace(-1,1, Ntheta) 
-        theta = np.arccos(tau)
+        theta = np.pi - np.arccos(tau)
         phi = np.linspace(0, 2*np.pi, Nphi)
         R, THETA, PHI = np.meshgrid(r,theta,phi, indexing='ij')
 
@@ -142,7 +142,7 @@ class particle:
     def flux(self, other_particles = []):
         r = np.array([self.radius + 1])
         tau = np.linspace(-1,1, Ntheta) 
-        theta = np.arccos(tau)
+        theta = np.pi - np.arccos(tau)
         phi = np.linspace(0, 2*np.pi, Nphi)
         R, THETA, PHI = np.meshgrid(r,theta,phi, indexing='ij')
 
@@ -250,7 +250,7 @@ class particle_system:
 
         r = np.array([radius])
         tau = np.linspace(-1,1, Ntheta) 
-        theta = np.arccos(tau)
+        theta = np.pi - np.arccos(tau)
         phi = np.linspace(0, 2*np.pi, Nphi)
         R, THETA, PHI = np.meshgrid(r,theta,phi, indexing='ij')
 
