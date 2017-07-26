@@ -16,16 +16,16 @@ style.screen()
 wav = np.linspace(400,1000,1000)
 
 #create a material with n = 3.7 (eps = n^2) at all wavelengths
-eps = 2.5*np.ones(1000) + 0.1j
+eps = 0.5*np.ones(1000) + 0.1j
 mu = 1*np.ones(1000)
 dielectric = material(wav,eps,mu)     #material object
 
 #calculate scattering coefficients
-rad = 800       # 100 nm radius
+rad = 20       # 100 nm radius
 Nmax = 5       # Use up to 10 multipoles
 m = sphere(Nmax, dielectric, rad)
 
-E_func = m.E_field(999)
+E_func = m.H_field(999)
 x = np.linspace(-2*rad,2*rad,200)
 y = np.linspace(-2*rad,2*rad,200)
 z = np.array([rad*0.0])
@@ -37,14 +37,14 @@ PHI = np.arctan2(Y,X)
 PHI[PHI<0] += 2*np.pi
 # R, THETA, PHI = np.meshgrid(r,theta,phi, indexing='ij')
 
-E = E_func(R,THETA,PHI)
+E = -1*E_func(R,THETA,PHI)
 E = np.squeeze(E)
 I = np.sum(np.abs(E)**2, axis=0)
 # I /= np.max(I)
 
 fig = plt.figure()
 plt.pcolormesh(np.squeeze(X),np.squeeze(Y), I, shading="gouraud")
-plt.colorbar()
+plt.colorbar(label='electric field intensity')
 
 # plt.streamplot(np.squeeze(X), np.squeeze(Y), np.real(E[0]), np.real(E[1]), color='white')
 
@@ -65,8 +65,51 @@ plt.xlim([-2*rad,2*rad])
 plt.ylim([-2*rad,2*rad])
 plt.xlabel("X (nm)")
 plt.ylabel("Y (nm)")
-plots.set_num_ticks(8,8)
+plots.set_num_ticks(5,5)
+plt.title(r'$\varepsilon = 4 + 0.1i$, $\lambda = 1 \mu m$' + '\n')
+plt.savefig('x.png', bbox_inches='tight', transparent=True)
 
 plt.show()
-print(I.shape)
+
+theta = np.linspace(0,np.pi,50)
+phi = np.linspace(0,2*np.pi,50)
+r = np.array([10000])
+
+R,THETA,PHI = np.meshgrid(r,theta,phi)
+X = R*np.sin(THETA)*np.cos(PHI)
+Y = R*np.sin(THETA)*np.sin(PHI)
+Z = R*np.cos(THETA)
+
+X = X.squeeze()
+Y = Y.squeeze()
+Z = Z.squeeze()
+
+E = E_func(R,THETA,PHI)
+I = np.sum(np.abs(E)**2, axis=0)
+I = np.squeeze(I)
+I -= np.min(I)
+I /= np.max(I)
+
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.cm as cm
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+shape = X.shape
+C = np.zeros((shape[0], shape[1], 4))
+cmap_3d = colors.cmap['parula']
+for i in range(shape[0]):
+    for j in range(shape[1]):
+        # C[i,j,:] = matplotlib.cm.rainbow(R[i,j])
+        C[i,j,:] = cmap_3d(I[i,j])
+surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1,shade=False, facecolors=C,linewidth=.0, edgecolors='#000000', antialiased=False)
+m = cm.ScalarMappable(cmap=cmap_3d)
+m.set_array(I)
+plt.colorbar(m)
+surf.set_edgecolor('k')
+ax.set_xlabel('X')
+
+plt.show()
+
+plt.show()
 

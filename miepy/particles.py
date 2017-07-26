@@ -13,6 +13,8 @@ levi[0,2,1] = levi[1,0,2] = levi[2,1,0] = -1
 Ntheta = 30
 Nphi = 30
 
+BUFFER_DEFAULT = 1
+
 class particle:
     """Sphere with a position"""
 
@@ -86,8 +88,8 @@ class particle:
         Htot = Hscat[0]*rhat + Hscat[1]*that + Hscat[2]*phat - Hinc
         return Htot
 
-    def force(self, other_particles = []):
-        r = np.array([self.radius + 1])
+    def force(self, other_particles = [], buffer = BUFFER_DEFAULT):
+        r = np.array([self.radius + buffer])
         tau = np.linspace(-1,1, Ntheta) 
         theta = np.pi - np.arccos(tau)
         phi = np.linspace(0, 2*np.pi, Nphi)
@@ -139,8 +141,8 @@ class particle:
         print("Torque: {}".format(T))
         return F,T
     
-    def flux(self, other_particles = []):
-        r = np.array([self.radius + 1])
+    def flux(self, other_particles = [], buffer = BUFFER_DEFAULT):
+        r = np.array([self.radius + buffer])
         tau = np.linspace(-1,1, Ntheta) 
         theta = np.pi - np.arccos(tau)
         phi = np.linspace(0, 2*np.pi, Nphi)
@@ -204,20 +206,31 @@ class particle_system:
         Hfield += sum([p.H(X,Y,Z, inc = False).squeeze() for p in self.particles[1:]])
         return Hfield 
 
-
-    def particle_force(self,i):
+    def particle_flux(self, i, buffer = BUFFER_DEFAULT):
         other_particles = (self.particles[j] for j in range(self.Nparticles) if j != i)
-        return self.particles[i].force(other_particles)
+        return self.particles[i].flux(other_particles, buffer=buffer)
 
-    def forces(self):
+    def particle_force(self, i, buffer = BUFFER_DEFAULT):
+        other_particles = (self.particles[j] for j in range(self.Nparticles) if j != i)
+        return self.particles[i].force(other_particles, buffer=buffer)
+
+    def forces(self, buffer = BUFFER_DEFAULT):
         all_forces  = np.zeros([self.Nparticles, 3])
         all_torques = np.zeros([self.Nparticles, 3])
         for i in range(self.Nparticles):
-            F,T = self.particle_force(i)
+            F,T = self.particle_force(i, buffer)
             all_forces[i]  = F
             all_torques[i] = T
 
         return all_forces, all_torques
+
+    def fluxes(self, buffer = BUFFER_DEFAULT):
+        all_fluxes  = np.zeros(self.Nparticles)
+        for i in range(self.Nparticles):
+            F = self.particle_flux(i, buffer)
+            all_fluxes[i]  = F
+
+        return all_fluxes
 
     def center_of_mass(self):
         com = np.zeros(3)
