@@ -3,7 +3,7 @@ Particle class for reprententing more general excitations
 """
 
 import numpy as np
-from miepy import sphere
+from miepy.mie_sphere import sphere
 from mpl_toolkits.mplot3d import Axes3D
 
 levi = np.zeros((3,3,3))
