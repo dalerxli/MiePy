@@ -18,9 +18,12 @@ class material:
                 wav[N]            wavelengths (in nm)
                 eps[N][complex]   complex permitivitty
                 mu[N][complex]    complex permeability (default = 1)   """
-
+        
+        wav = np.asarray(wav)
+        eps = np.asarray(eps)
         if mu is None:
             mu = np.ones(shape = eps.shape)
+        mu = np.asarray(mu)
 
         self.Nfreq = len(wav)
         self.wav = wav

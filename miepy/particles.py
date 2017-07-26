@@ -5,6 +5,7 @@ Particle class for reprententing more general excitations
 import numpy as np
 from miepy.mie_sphere import sphere
 from mpl_toolkits.mplot3d import Axes3D
+from my_pytools.my_numpy.integrate import simps_2d
 
 levi = np.zeros((3,3,3))
 levi[0,1,2] = levi[1,2,0] = levi[2,0,1] = 1
@@ -133,12 +134,10 @@ class particle:
         dA = (4*np.pi*r[0]**2/(len(theta)*len(phi)))
         integrand = np.einsum('ijxy,jxy->ixy', sigma, rhat)*dA
         F = np.array([simps_2d(tau, phi, integrand[i].real) for i in range(3)])
-        print("Force: {}".format(F))
 
         # compute T
         integrand = np.einsum('imn,mxy,njxy,jxy->ixy', levi, r[0]*rhat, sigma, rhat)*dA
         T = np.array([simps_2d(tau, phi, integrand[i].real) for i in range(3)])
-        print("Torque: {}".format(T))
         return F,T
     
     def flux(self, other_particles = [], buffer = BUFFER_DEFAULT):
@@ -300,10 +299,8 @@ class particle_system:
         dA = (4*np.pi*r[0]**2/(len(theta)*len(phi)))
         integrand = np.einsum('ijxy,jxy->ixy', sigma, rhat)*dA
         F = np.array([simps_2d(tau, phi, integrand[i].real) for i in range(3)])
-        print("Force: {}".format(F))
 
         # compute T
         integrand = np.einsum('imn,mxy,njxy,jxy->ixy', levi, r[0]*rhat, sigma, rhat)*dA
         T = np.array([simps_2d(tau, phi, integrand[i].real) for i in range(3)])
-        print("Torque: {}".format(T))
         return F,T
