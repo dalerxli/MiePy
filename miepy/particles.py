@@ -55,9 +55,10 @@ class particle:
         Ax,Ay,Az = self.source.E(self.center, self.k)
 
         Escat = Ax*self.E_func(R,THETA,PHI) + Ay*self.E_func(R,THETA,PHI-np.pi/2)
+        Escat *= -1
         
         # convert to cartesian
-        Etot = Escat[0]*rhat + Escat[1]*that + Escat[2]*phat - Einc
+        Etot = Escat[0]*rhat + Escat[1]*that + Escat[2]*phat + Einc
         return Etot
 
     def H(self, X, Y, Z, inc=True):
@@ -84,9 +85,10 @@ class particle:
         Ax,Ay,Az = self.source.H(self.center, self.k)
 
         Hscat = Ay*self.H_func(R,THETA,PHI) + Ax*self.H_func(R,THETA,PHI-np.pi/2)
+        Hscat *= -1
         
         # convert to cartesian
-        Htot = Hscat[0]*rhat + Hscat[1]*that + Hscat[2]*phat - Hinc
+        Htot = Hscat[0]*rhat + Hscat[1]*that + Hscat[2]*phat + Hinc
         return Htot
 
     def force(self, other_particles = [], buffer = BUFFER_DEFAULT, inc=True):
