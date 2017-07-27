@@ -68,7 +68,7 @@ class particle:
         R = np.sqrt(Xs**2 + Ys**2 + Zs**2)
         THETA = np.arccos(Zs/R)
         PHI = np.arctan2(Ys,Xs)
-        PHI[PHI<0] += 2*np.pi
+        # PHI[PHI<0] += 2*np.pi
 
         # incident field
         xhat = np.array([np.sin(THETA)*np.cos(PHI), np.cos(THETA)*np.cos(PHI), -np.sin(PHI)])
@@ -89,7 +89,7 @@ class particle:
         Htot = Hscat[0]*rhat + Hscat[1]*that + Hscat[2]*phat - Hinc
         return Htot
 
-    def force(self, other_particles = [], buffer = BUFFER_DEFAULT):
+    def force(self, other_particles = [], buffer = BUFFER_DEFAULT, inc=True):
         r = np.array([self.radius + buffer])
         tau = np.linspace(-1,1, Ntheta) 
         theta = np.pi - np.arccos(tau)
@@ -101,8 +101,8 @@ class particle:
         Z = self.center[2] + R*np.cos(THETA)
 
         # E and H fields
-        E = self.E(X,Y,Z)
-        H = self.H(X,Y,Z)
+        E = self.E(X,Y,Z, inc=inc)
+        H = self.H(X,Y,Z, inc=inc)
 
         for p in other_particles:
             E += p.E(X,Y,Z, inc=False)
@@ -140,7 +140,7 @@ class particle:
         T = np.array([simps_2d(tau, phi, integrand[i].real) for i in range(3)])
         return F,T
     
-    def flux(self, other_particles = [], buffer = BUFFER_DEFAULT):
+    def flux(self, other_particles = [], buffer = BUFFER_DEFAULT, inc=False):
         r = np.array([self.radius + buffer])
         tau = np.linspace(-1,1, Ntheta) 
         theta = np.pi - np.arccos(tau)
@@ -152,8 +152,8 @@ class particle:
         Z = self.center[2] + R*np.cos(THETA)
 
         # E and H fields
-        E = self.E(X,Y,Z, inc=False)
-        H = self.H(X,Y,Z, inc=False)
+        E = self.E(X,Y,Z, inc=inc)
+        H = self.H(X,Y,Z, inc=inc)
 
         for p in other_particles:
             E += p.E(X,Y,Z, inc=False)
@@ -205,28 +205,28 @@ class particle_system:
         Hfield += sum([p.H(X,Y,Z, inc = False).squeeze() for p in self.particles[1:]])
         return Hfield 
 
-    def particle_flux(self, i, buffer = BUFFER_DEFAULT):
+    def particle_flux(self, i, buffer = BUFFER_DEFAULT, inc = False):
         other_particles = (self.particles[j] for j in range(self.Nparticles) if j != i)
-        return self.particles[i].flux(other_particles, buffer=buffer)
+        return self.particles[i].flux(other_particles, buffer=buffer, inc=inc)
 
-    def particle_force(self, i, buffer = BUFFER_DEFAULT):
+    def particle_force(self, i, buffer = BUFFER_DEFAULT, inc = True):
         other_particles = (self.particles[j] for j in range(self.Nparticles) if j != i)
-        return self.particles[i].force(other_particles, buffer=buffer)
+        return self.particles[i].force(other_particles, buffer=buffer, inc=inc)
 
-    def forces(self, buffer = BUFFER_DEFAULT):
+    def forces(self, buffer = BUFFER_DEFAULT, inc = True):
         all_forces  = np.zeros([self.Nparticles, 3])
         all_torques = np.zeros([self.Nparticles, 3])
         for i in range(self.Nparticles):
-            F,T = self.particle_force(i, buffer)
+            F,T = self.particle_force(i, buffer = buffer, inc = inc)
             all_forces[i]  = F
             all_torques[i] = T
 
         return all_forces, all_torques
 
-    def fluxes(self, buffer = BUFFER_DEFAULT):
+    def fluxes(self, buffer = BUFFER_DEFAULT, inc = False):
         all_fluxes  = np.zeros(self.Nparticles)
         for i in range(self.Nparticles):
-            F = self.particle_flux(i, buffer)
+            F = self.particle_flux(i, buffer = buffer, inc = inc)
             all_fluxes[i]  = F
 
         return all_fluxes
