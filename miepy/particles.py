@@ -192,6 +192,7 @@ class particle_system:
         self.source = source
         self.eps_b = eps_b
         self.mu_b = mu_b
+        self.k = self.particles[0].k
         self.max_reflections = max_reflections
         self.Nparticles = len(self.particles)
 
@@ -204,6 +205,57 @@ class particle_system:
         Hfield = self.particles[0].H(X,Y,Z, inc=inc).squeeze()
         Hfield += sum([p.H(X,Y,Z, inc = False).squeeze() for p in self.particles[1:]])
         return Hfield 
+
+    def solve_interactions(self):
+        pos = np.array([p.center for p in self.particles]).T
+        Einc = self.source.E(pos,self.k)
+        Einc = Einc[:2,:]
+        Hinc = self.source.H(pos,self.k)
+        Hinc = Hinc[:2,:]
+        
+        identity = np.zeros(shape = (2, self.Nparticles, 2, self.Nparticles), dtype=np.complex)
+        np.einsum('xixi->xi', identity)[...] = 1
+        
+        MieMatrix_E = np.zeros(shape = (2, self.Nparticles, 2, self.Nparticles), dtype=np.complex)
+        MieMatrix_H = np.zeros(shape = (2, self.Nparticles, 2, self.Nparticles), dtype=np.complex)
+        
+        for i in range(self.Nparticles):
+            for j in range(self.Nparticles):
+                if i == j: continue
+                pi = self.particles[i].center
+                pj = self.particles[j].center
+                dji = pi -  pj
+                r_ji = np.linalg.norm(dji)
+                theta_ji = np.arccos(dji[2]/r_ji)
+                phi_ji = np.arctan2(dji[1], dji[0])
+                
+                rhat = np.array([np.sin(theta_ji)*np.cos(phi_ji), np.sin(theta_ji)*np.sin(phi_ji), np.cos(theta_ji)])
+                that = np.array([np.cos(theta_ji)*np.cos(phi_ji), np.cos(theta_ji)*np.sin(phi_ji), -np.sin(theta_ji)])
+                phat = np.array([-np.sin(phi_ji), np.cos(phi_ji), np.zeros_like(theta_ji)])
+                
+                xsol = self.particles[j].E_func(np.array([r_ji]), np.array([theta_ji]), np.array([phi_ji])).squeeze()
+                ysol = self.particles[j].E_func(np.array([r_ji]), np.array([theta_ji]), np.array([phi_ji - np.pi/2])).squeeze()
+                xsol = xsol[0]*rhat + xsol[1]*that + xsol[2]*phat
+                ysol = ysol[0]*rhat + ysol[1]*that + ysol[2]*phat
+                
+                MieMatrix_E[:,i,0,j] = xsol[:2]
+                MieMatrix_E[:,i,1,j] = ysol[:2]
+        
+                xsol = self.particles[j].H_func(np.array([r_ji]), np.array([theta_ji]), np.array([phi_ji])).squeeze()
+                ysol = self.particles[j].H_func(np.array([r_ji]), np.array([theta_ji]), np.array([phi_ji - np.pi/2])).squeeze()
+                xsol = xsol[0]*rhat + xsol[1]*that + xsol[2]*phat
+                ysol = ysol[0]*rhat + ysol[1]*that + ysol[2]*phat
+                
+                MieMatrix_H[:,i,0,j] = xsol[:2]
+                MieMatrix_H[:,i,1,j] = ysol[:2]
+
+        A = identity - MieMatrix_E
+        sol_E = np.linalg.solve(A.reshape(2*self.Nparticles, 2*self.Nparticles), Einc.reshape(2*self.Nparticles)).reshape(2, self.Nparticles)
+        
+        A = identity - MieMatrix_H
+        sol_H = np.linalg.solve(A.reshape(2*self.Nparticles, 2*self.Nparticles), Hinc.reshape(2*self.Nparticles)).reshape(2, self.Nparticles)
+        
+        return sol_E, sol_H
 
     def particle_flux(self, i, buffer = BUFFER_DEFAULT, inc = False):
         other_particles = (self.particles[j] for j in range(self.Nparticles) if j != i)
