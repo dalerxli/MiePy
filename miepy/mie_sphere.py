@@ -100,7 +100,7 @@ class sphere:
                 E[:,id_inside] += En*(cn*VSH.M_o1n(k)(r[id_inside],theta[id_inside],phi[id_inside])  \
                                 - 1j*dn*VSH.N_e1n(k)(r[id_inside],theta[id_inside],phi[id_inside]))
 
-            return E
+            return -E
 
         return E_func
 
@@ -134,6 +134,6 @@ class sphere:
                 H[:,id_inside] += -k*En/(omega*mu)*(dn*VSH.M_e1n(k)(r[id_inside],theta[id_inside],phi[id_inside])  \
                                 + 1j*cn*VSH.N_o1n(k)(r[id_inside],theta[id_inside],phi[id_inside]))
 
-            return H
+            return -H
 
         return H_func

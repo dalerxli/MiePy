@@ -11,8 +11,8 @@ levi = np.zeros((3,3,3))
 levi[0,1,2] = levi[1,2,0] = levi[2,0,1] = 1
 levi[0,2,1] = levi[1,0,2] = levi[2,1,0] = -1
 
-Ntheta = 30
-Nphi = 30
+Ntheta = 51
+Nphi = 31
 
 BUFFER_DEFAULT = 1
 
@@ -55,7 +55,6 @@ class particle:
         Ax,Ay,Az = self.source.E(self.center, self.k)
 
         Escat = Ax*self.E_func(R,THETA,PHI) + Ay*self.E_func(R,THETA,PHI-np.pi/2)
-        Escat *= -1
         
         # convert to cartesian
         Etot = Escat[0]*rhat + Escat[1]*that + Escat[2]*phat + Einc
@@ -85,7 +84,6 @@ class particle:
         Ax,Ay,Az = self.source.H(self.center, self.k)
 
         Hscat = Ay*self.H_func(R,THETA,PHI) + Ax*self.H_func(R,THETA,PHI-np.pi/2)
-        Hscat *= -1
         
         # convert to cartesian
         Htot = Hscat[0]*rhat + Hscat[1]*that + Hscat[2]*phat + Hinc
