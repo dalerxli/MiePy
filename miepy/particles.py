@@ -131,7 +131,7 @@ class particle:
                 - 0.5*np.einsum('ij,xy->ijxy', np.identity(3), mu_b*np.sum(np.abs(H)**2, axis=0))
 
         # compute F
-        dA = (4*np.pi*r[0]**2/(len(theta)*len(phi)))
+        dA = r[0]**2
         integrand = np.einsum('ijxy,jxy->ixy', sigma, rhat)*dA
         F = np.array([simps_2d(tau, phi, integrand[i].real) for i in range(3)])
 
@@ -179,7 +179,7 @@ class particle:
         S = np.real(np.einsum('ijk,jxy,kxy->ixy', levi, E, np.conj(H)))
 
         # compute Flux
-        dA = (4*np.pi*r[0]**2/(len(theta)*len(phi)))
+        dA = r[0]**2
         integrand = np.einsum('ixy,ixy->xy', S, rhat)*dA
         Flux = simps_2d(tau, phi, integrand)
         return Flux
