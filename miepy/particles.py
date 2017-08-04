@@ -27,6 +27,7 @@ class particle:
         self.E_func = sp.E_field(freq_index)
         self.H_func = sp.H_field(freq_index)
         self.source = source
+        self.amp = source.E(center, self.k)
 
     def E(self, X, Y, Z, inc=True):
         Xs = X - self.center[0]
@@ -52,7 +53,7 @@ class particle:
             Einc = self.source.E(np.array([Xs,Ys,Zs]), self.k)
         else:
             Einc = 0
-        Ax,Ay,Az = self.source.E(self.center, self.k)
+        Ax, Ay = self.amp
 
         Escat = Ax*self.E_func(R,THETA,PHI) + Ay*self.E_func(R,THETA,PHI-np.pi/2)
         
@@ -81,9 +82,9 @@ class particle:
             Hinc = self.source.H(np.array([Xs,Ys,Zs]), self.k)
         else:
             Hinc = 0
-        Ax,Ay,Az = self.source.H(self.center, self.k)
+        Ax, Ay = self.amp
 
-        Hscat = Ay*self.H_func(R,THETA,PHI) + Ax*self.H_func(R,THETA,PHI-np.pi/2)
+        Hscat = Ax*self.H_func(R,THETA,PHI) + Ay*self.H_func(R,THETA,PHI-np.pi/2)
         
         # convert to cartesian
         Htot = Hscat[0]*rhat + Hscat[1]*that + Hscat[2]*phat + Hinc
@@ -186,15 +187,19 @@ class particle:
 
 
 class particle_system:
-    def __init__(self, bodies, source, eps_b = 1, mu_b = 1, max_reflections = 0):
+    def __init__(self, bodies, source, eps_b=1, mu_b=1, interactions=True):
         self.particles = [particle(sphere(body['Nmax'], body['material'], body['radius'],
                           eps_b, mu_b), body['position'], 0, source) for body in bodies]
         self.source = source
         self.eps_b = eps_b
         self.mu_b = mu_b
         self.k = self.particles[0].k
-        self.max_reflections = max_reflections
         self.Nparticles = len(self.particles)
+
+        if (interactions):
+            amps = self.solve_interactions()
+            for i in range(self.Nparticles):
+                self.particles[i].amp = amps[:,i]
 
     def E(self,X,Y,Z, inc = True):
         Efield = self.particles[0].E(X,Y,Z, inc=inc).squeeze()
@@ -210,14 +215,11 @@ class particle_system:
         pos = np.array([p.center for p in self.particles]).T
         Einc = self.source.E(pos,self.k)
         Einc = Einc[:2,:]
-        Hinc = self.source.H(pos,self.k)
-        Hinc = Hinc[:2,:]
         
         identity = np.zeros(shape = (2, self.Nparticles, 2, self.Nparticles), dtype=np.complex)
         np.einsum('xixi->xi', identity)[...] = 1
         
-        MieMatrix_E = np.zeros(shape = (2, self.Nparticles, 2, self.Nparticles), dtype=np.complex)
-        MieMatrix_H = np.zeros(shape = (2, self.Nparticles, 2, self.Nparticles), dtype=np.complex)
+        MieMatrix = np.zeros(shape = (2, self.Nparticles, 2, self.Nparticles), dtype=np.complex)
         
         for i in range(self.Nparticles):
             for j in range(self.Nparticles):
@@ -238,24 +240,13 @@ class particle_system:
                 xsol = xsol[0]*rhat + xsol[1]*that + xsol[2]*phat
                 ysol = ysol[0]*rhat + ysol[1]*that + ysol[2]*phat
                 
-                MieMatrix_E[:,i,0,j] = xsol[:2]
-                MieMatrix_E[:,i,1,j] = ysol[:2]
-        
-                xsol = self.particles[j].H_func(np.array([r_ji]), np.array([theta_ji]), np.array([phi_ji])).squeeze()
-                ysol = self.particles[j].H_func(np.array([r_ji]), np.array([theta_ji]), np.array([phi_ji - np.pi/2])).squeeze()
-                xsol = xsol[0]*rhat + xsol[1]*that + xsol[2]*phat
-                ysol = ysol[0]*rhat + ysol[1]*that + ysol[2]*phat
-                
-                MieMatrix_H[:,i,0,j] = xsol[:2]
-                MieMatrix_H[:,i,1,j] = ysol[:2]
+                MieMatrix[:,i,0,j] = xsol[:2]
+                MieMatrix[:,i,1,j] = ysol[:2]
 
-        A = identity - MieMatrix_E
-        sol_E = np.linalg.solve(A.reshape(2*self.Nparticles, 2*self.Nparticles), Einc.reshape(2*self.Nparticles)).reshape(2, self.Nparticles)
+        A = identity - MieMatrix
+        sol = np.linalg.solve(A.reshape(2*self.Nparticles, 2*self.Nparticles), Einc.reshape(2*self.Nparticles)).reshape(2, self.Nparticles)
         
-        A = identity - MieMatrix_H
-        sol_H = np.linalg.solve(A.reshape(2*self.Nparticles, 2*self.Nparticles), Hinc.reshape(2*self.Nparticles)).reshape(2, self.Nparticles)
-        
-        return sol_E, sol_H
+        return sol
 
     def particle_flux(self, i, buffer = BUFFER_DEFAULT, inc = False):
         other_particles = (self.particles[j] for j in range(self.Nparticles) if j != i)
