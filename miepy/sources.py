@@ -21,6 +21,11 @@ class plane_wave:
         pol = np.array([*np.conjugate(self.polarization[::-1]), 0])
         return np.einsum('i...,...->i...', pol, amp)
 
+xpol = lambda amplitude=1: plane_wave([1,0], amplitude=1)
+ypol = lambda amplitude=1: plane_wave([0,1], amplitude=1)
+rhc = lambda amplitude=1: plane_wave([1,1j], amplitude=1)
+lhc = lambda amplitude=1: plane_wave([1,-1j], amplitude=1)
+
 class azimuthal:
     def E(self, r, k):
         rho = (r[0]**2 + r[1]**2)**0.5
