@@ -47,13 +47,11 @@ class particle:
         that = np.array([np.cos(THETA)*np.cos(PHI), np.cos(THETA)*np.sin(PHI), -np.sin(THETA)])
         phat = np.array([-np.sin(PHI), np.cos(PHI), np.zeros_like(THETA)])
 
-        amp = np.exp(1j*self.k*Zs)
-
         if inc:
             Einc = self.source.E(np.array([Xs,Ys,Zs]), self.k)
         else:
             Einc = 0
-        Ax, Ay = self.amp
+        Ax, Ay = self.amp[:2]
 
         Escat = Ax*self.E_func(R,THETA,PHI) + Ay*self.E_func(R,THETA,PHI-np.pi/2)
         
@@ -82,7 +80,7 @@ class particle:
             Hinc = self.source.H(np.array([Xs,Ys,Zs]), self.k)
         else:
             Hinc = 0
-        Ax, Ay = self.amp
+        Ax, Ay = self.amp[:2]
 
         Hscat = Ax*self.H_func(R,THETA,PHI) + Ay*self.H_func(R,THETA,PHI-np.pi/2)
         
