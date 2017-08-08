@@ -18,13 +18,14 @@ class plane_wave:
 
     def H(self, r, k):
         amp = self.amplitude*np.exp(1j*k*r[2])
-        pol = np.array([*np.conjugate(self.polarization[::-1]), 0])
+        H0_x, H0_y = -self.polarization[1], self.polarization[0]
+        pol = np.array([H0_x, H0_y, 0])
         return np.einsum('i...,...->i...', pol, amp)
 
-xpol = lambda amplitude=1: plane_wave([1,0], amplitude=1)
-ypol = lambda amplitude=1: plane_wave([0,1], amplitude=1)
-rhc = lambda amplitude=1: plane_wave([1,1j], amplitude=1)
-lhc = lambda amplitude=1: plane_wave([1,-1j], amplitude=1)
+xpol = lambda amplitude=1: plane_wave(polarization=[1,0],   amplitude=amplitude)
+ypol = lambda amplitude=1: plane_wave(polarization=[0,1],   amplitude=amplitude)
+rhc  = lambda amplitude=1: plane_wave(polarization=[1,1j],  amplitude=amplitude)
+lhc  = lambda amplitude=1: plane_wave(polarization=[1,-1j], amplitude=amplitude)
 
 class azimuthal:
     def E(self, r, k):
