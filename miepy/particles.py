@@ -23,7 +23,7 @@ class particle:
         self.center = np.asarray(center)
         self.radius = sp.r
         self.solution = sp
-        self.k = sp.mat.k[freq_index]/(sp.eps_b*sp.mu_b)**0.5
+        self.k = sp.mat.k[freq_index]*(sp.eps_b*sp.mu_b)**0.5
         self.E_func = sp.E_field(freq_index)
         self.H_func = sp.H_field(freq_index)
         self.source = source
@@ -77,7 +77,7 @@ class particle:
         phat = np.array([-np.sin(PHI), np.cos(PHI), np.zeros_like(THETA)])
 
         if inc:
-            Hinc = self.source.H(np.array([Xs,Ys,Zs]), self.k)
+            Hinc = self.source.H(np.array([Xs,Ys,Zs]), self.k)*(self.solution.eps_b/self.solution.mu_b)**0.5
         else:
             Hinc = 0
         Ax, Ay = self.amp[:2]
