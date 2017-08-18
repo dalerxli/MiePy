@@ -13,7 +13,7 @@ from . import array_io
 from . import particles
 from . import sources
 
-from .mie_sphere import sphere
-from .mie_core_shell import core_shell
+from .mie_sphere import single_mie_sphere
+from .mie_core_shell import single_mie_core_shell
 from .materials import material, load_material
 from .particles import particle, particle_system

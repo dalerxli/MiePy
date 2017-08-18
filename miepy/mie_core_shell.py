@@ -34,7 +34,7 @@ def c_values(m2,y,mu2,n):
 def get_index(mat):
     return (mat.eps*mat.mu)**.5
 
-def core_shell(nmax, mat_in, mat_out,  r_in, r_out, eps_b=1, mu_b=1):
+def single_mie_core_shell(nmax, mat_in, mat_out,  r_in, r_out, eps_b=1, mu_b=1):
     """Determine an, bn coefficients for a core-shell structure
 
            nmax      = maximum number of orders to use

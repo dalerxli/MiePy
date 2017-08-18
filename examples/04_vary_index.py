@@ -5,11 +5,12 @@ Scattering intensity of a dielectric sphere for variable wavelength and dielectr
 import numpy as np
 import matplotlib.pyplot as plt
 from miepy.materials import material
-from miepy import sphere
+from miepy import single_mie_sphere
 import my_pytools.my_matplotlib.style as style
 import my_pytools.my_matplotlib.plots as plots
 import my_pytools.my_matplotlib.colors as colors
 import matplotlib.cm as cm
+from tqdm import tqdm
 
 style.screen()
 
@@ -22,8 +23,7 @@ data = np.zeros(shape=(N2,N1))
 indices = np.linspace(1,4,N2)
 wav = np.linspace(400,1000,N1)
 cmap = colors.cmap['parula']
-for i,index in enumerate(indices):
-    print(index)
+for i,index in enumerate(tqdm(indices)):
     eps = index**2*np.ones(N1)
     mu = 1*np.ones(N1)
     dielectric = material(wav,eps,mu)     #material object
@@ -31,7 +31,7 @@ for i,index in enumerate(indices):
     #calculate scattering coefficients
     rad = 165       # 100 nm radius
     Nmax = 20       # Use up to 10 multipoles
-    m = sphere(Nmax, dielectric, rad, eps_b=1.0**2).scattering() #scattering object
+    m = single_mie_sphere(Nmax, dielectric, rad, eps_b=1.0**2).scattering() #scattering object
 
     # Figure 1: Scattering and Absorption
     plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))

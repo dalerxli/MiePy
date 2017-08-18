@@ -6,7 +6,7 @@ scattering, absorption, and scattering per multipole
 import numpy as np
 import matplotlib.pyplot as plt
 from miepy.materials import material, Ag, plot_material,Au
-from miepy import sphere, core_shell
+from miepy import single_mie_sphere, single_mie_core_shell
 
 #create a silver material (wavelengths 300-1100nm)
 wav = np.linspace(400,1000,1000)
@@ -19,7 +19,7 @@ dielectric = material(wav,eps,mu)     #material object
 rad = 125       # 200 nm radius
 Nmax = 10       # Use up to 10 multipoles
 rad = 135
-m = core_shell(Nmax, dielectric, silver,rad,rad+30, eps_b=1.5**2) #scattering object
+m = single_mie_core_shell(Nmax, dielectric, silver,rad,rad+30, eps_b=1.5**2) #scattering object
 
 
 

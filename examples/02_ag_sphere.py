@@ -6,7 +6,7 @@ scattering, absorption, and scattering per multipole
 import numpy as np
 import matplotlib.pyplot as plt
 from miepy.materials import Ag, plot_material
-from miepy import sphere
+from miepy import single_mie_sphere
 
 #create a silver material (wavelengths 300-1100nm)
 silver = Ag()     #material object
@@ -14,7 +14,7 @@ silver = Ag()     #material object
 #calculate scattering coefficients
 rad = 200       # 200 nm radius
 Nmax = 10       # Use up to 10 multipoles
-m = sphere(Nmax, silver, rad).scattering() #scattering object
+m = single_mie_sphere(Nmax, silver, rad).scattering() #scattering object
 
 # Figure 1: Ag eps & mu data
 plt.figure(1)

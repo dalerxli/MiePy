@@ -3,7 +3,7 @@ Particle class for reprententing more general excitations
 """
 
 import numpy as np
-from miepy.mie_sphere import sphere
+from miepy.mie_sphere import single_mie_sphere
 from mpl_toolkits.mplot3d import Axes3D
 from my_pytools.my_numpy.integrate import simps_2d
 
@@ -186,7 +186,7 @@ class particle:
 
 class particle_system:
     def __init__(self, bodies, source, eps_b=1, mu_b=1, interactions=True):
-        self.particles = [particle(sphere(body['Nmax'], body['material'], body['radius'],
+        self.particles = [particle(single_mie_sphere(body['Nmax'], body['material'], body['radius'],
                           eps_b, mu_b), body['position'], 0, source) for body in bodies]
         self.source = source
         self.eps_b = eps_b

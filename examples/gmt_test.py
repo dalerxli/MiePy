@@ -5,7 +5,7 @@ Comparison of single Mie theory and GMT
 import numpy as np
 import matplotlib.pyplot as plt
 from miepy.materials import material
-from miepy import sphere
+from miepy import single_mie_sphere
 from miepy.particles import particle_system
 from miepy.sources import xpol
 from tqdm import tqdm
@@ -23,7 +23,7 @@ rad = 100       # 100 nm radius
 
 # Single Mie Theory
 Nmax = 10       # Use up to 10 multipoles
-m = sphere(Nmax, dielectric, rad).scattering() #scattering object
+m = single_mie_sphere(Nmax, dielectric, rad).scattering() #scattering object
 C,A = m.scattering()     # Returns scat,absorp arrays
 plt.plot(m.energy,C,label="Single Mie theory", linewidth=2)
 

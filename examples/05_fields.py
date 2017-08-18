@@ -5,7 +5,7 @@ Displaying the fields in an xy cross section of the sphere (x polarized light, z
 import numpy as np
 import matplotlib.pyplot as plt
 from miepy.materials import material
-from miepy import sphere
+from miepy import single_mie_sphere
 import my_pytools.my_matplotlib.style as style
 import my_pytools.my_matplotlib.plots as plots
 import my_pytools.my_matplotlib.colors as colors
@@ -23,7 +23,7 @@ dielectric = material(wav,eps,mu)     #material object
 #calculate scattering coefficients
 rad = 20       # 100 nm radius
 Nmax = 5       # Use up to 10 multipoles
-m = sphere(Nmax, dielectric, rad)
+m = single_mie_sphere(Nmax, dielectric, rad)
 
 E_func = m.H_field(999)
 x = np.linspace(-2*rad,2*rad,200)
@@ -67,7 +67,6 @@ plt.xlabel("X (nm)")
 plt.ylabel("Y (nm)")
 plots.set_num_ticks(5,5)
 plt.title(r'$\varepsilon = 4 + 0.1i$, $\lambda = 1 \mu m$' + '\n')
-plt.savefig('x.png', bbox_inches='tight', transparent=True)
 
 plt.show()
 

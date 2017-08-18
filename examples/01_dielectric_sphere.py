@@ -6,7 +6,7 @@ absorption, and scattering per multipole
 import numpy as np
 import matplotlib.pyplot as plt
 from miepy.materials import material
-from miepy import sphere
+from miepy import single_mie_sphere
 
 #wavelength from 400nm to 1000nm
 wav = np.linspace(400,1000,1000)
@@ -19,7 +19,7 @@ dielectric = material(wav,eps,mu)     #material object
 #calculate scattering coefficients
 rad = 100       # 100 nm radius
 Nmax = 10       # Use up to 10 multipoles
-m = sphere(Nmax, dielectric, rad).scattering() #scattering object
+m = single_mie_sphere(Nmax, dielectric, rad).scattering() #scattering object
 
 # Figure 1: Scattering and Absorption
 plt.figure(1)

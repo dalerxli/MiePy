@@ -5,7 +5,7 @@ import numpy as np
 from miepy.scattering import multipoles
 from miepy.special_functions import riccati_1,riccati_2,vector_spherical_harmonics
 
-class sphere:
+class single_mie_sphere:
     def __init__(self, nmax, mat, r, eps_b=1, mu_b=1):
         """Determine an, bn coefficients for a sphere
 
