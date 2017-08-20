@@ -1,17 +1,30 @@
+"""
+Various functions to load materials and display metadata from the material database
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 import yaml
 import os
 import itertools
 from matplotlib.markers import MarkerStyle
+import miepy
 from miepy.material_functions import data_material
+
+def get_filepath(name, author):
+    """get the absolute filepath to the material data of name and author"""
+    root = miepy.__path__[0]
+    filepath = f"{root}/materials/database/main/{name}/{author}.yml"
+    return filepath
 
 def load_material(name, author):
     """Load a material from the database
               name         material name
               author       author of the experimental data
     """
-    filepath = f"database/main/{name}/{author}.yml"
+
+    # return load_material(miepy.__path__[0] + "/materials/ag.npy")
+    filepath = get_filepath(name, author)
     with open(filepath, 'r') as f:
         docs = yaml.load(f)
         str_data = docs['DATA'][0]['data']
@@ -31,7 +44,8 @@ def load_material(name, author):
 
 def get_authors(material_name):
     """Get a list of possible authors for a given material"""
-    directory = f"database/main/{material_name}"
+    filepath = get_filepath(material_name, "")
+    directory = filepath[:filepath.rfind('/')]
     files = os.listdir(directory)
     authors = map(lambda f: os.path.splitext(f)[0], files)
     return authors
@@ -53,11 +67,14 @@ def plot_material_by_author(material_name, wavelength_min=0, wavelength_max=np.i
     for author in authors:
         mat = load_material(material_name, author)
         data = wavelength_filter(mat.data, wavelength_min, wavelength_max)
+
+        color = next(colors)
+        marker = next(markers)
         
         ax1.plot(data['wavelength']*1e9, data['eps'].real, 
-            label=author, color=next(colors), linewidth=1, marker=next(markers))
+            label=author, color=color, linewidth=1, marker=marker)
         ax2.plot(data['wavelength']*1e9, data['eps'].imag, 
-            label=author, color=next(colors), linewidth=1, marker=next(markers))
+            label=author, color=color, linewidth=1, marker=marker)
     
     for ax in (ax1,ax2):
         ax.set(xlabel="wavelength (nm)", ylabel="permitivitty")
@@ -80,7 +97,7 @@ def material_info_by_author(material_name, wavelength_min=0, wavelength_max=np.i
         if not data.empty:
             print(f"\t{author}:  {len(data)} datapoints")
 
-            filepath = f"database/main/{material_name}/{author}.yml"
+            filepath = get_filepath(name, author)
             with open(filepath, 'r') as f:
                 docs = yaml.load(f)
                 reference = docs['REFERENCES']

@@ -1,4 +1,4 @@
-from miepy.materials import load_material
+from miepy.materials.load import load_material
 
 def Ag(author='Johnson'):
     """Return silver material from MiePy data"""

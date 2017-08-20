@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import miepy
 from scipy import constants
+from scipy.interpolate import interp1d
 import pandas as pd
 from abc import ABCMeta, abstractmethod
 
@@ -25,34 +26,34 @@ class material:
 class constant_material(material):
     def __init__(self, eps, mu=1.0):
         """create a material with a constant eps and mu"""
-        self.eps = eps
-        self.mu = mu
+        self.eps_value = eps
+        self.mu_value = mu
     
-    @np.vectorize
     def eps(self, wavelength):
-        return self.eps
+        f = np.vectorize(lambda wav: self.eps_value)
+        return f(wavelength)
 
-    @np.vectorize
     def mu(self, wavelength):
-        return self.mu
+        f = np.vectorize(lambda wav: self.mu_value)
+        return f(wavelength)
 
 class function_material(material):
     def __init__(self, eps_function, mu_function=None):
         """create a material with an eps and mu function"""
-        self.eps_function = emu_function
+        self.eps_function = eps_function
 
         if mu_function is None:
             self.mu_function = lambda wavelength: 1.0
         else:
             self.mu_function = mu_function
     
-    @np.vectorize
     def eps(self, wavelength):
-        return self.eps_function(wavelength)
+        f = np.vectorize(lambda wav: self.eps_function(wav))
+        return f(wavelength)
 
-    @np.vectorize
     def mu(self, wavelength):
-        return self.mu_function(wavelength)
+        f = np.vectorize(lambda wav: self.mu_function(wav))
+        return f(wavelength)
 
 class data_material(material):
     def __init__(self, wavelength, eps, mu=None):
@@ -70,10 +71,12 @@ class data_material(material):
             self.data['mu'] = np.asarray(mu, dtype=complex)
 
     def eps(self, wavelength):
-        return np.interp(wavelength, self.data['wavelength'], self.data['eps'])
+        f = interp1d(self.data['wavelength'], self.data['eps'], kind='cubic')
+        return f(wavelength)
 
     def mu(self, wavelength):
-        return np.interp(wavelength, self.data['wavelength'], self.data['mu'])
+        f = interp1d(self.data['wavelength'], self.data['mu'], kind='cubic')
+        return f(wavelength)
 
 
 def wavelength_to_energy(wavelength):
