@@ -54,7 +54,7 @@ class multipoles:
 
         if nmax == None:
             nmax = np.inf
-        nmax = min(self.an.shape[0], nmax)
+        nmax = min(self.an.shape[1], nmax)
 
         scat = np.zeros([self.Nfreq,2,nmax])
         for n in range(1,nmax+1):
@@ -67,11 +67,11 @@ class multipoles:
 
            Return (scattering, absorbption) amplitudes"""
 
-        nmax = self.an.shape[0]
+        nmax = self.an.shape[1]
         nvals = 2*np.arange(1,nmax+1) + 1
         nvals = np.expand_dims(nvals,axis=1)
-        sum_val_1 = np.sum(nvals*(np.abs(self.an)**2 + np.abs(self.bn)**2),axis=0)
-        sum_val_2 = np.sum(nvals*np.real(self.an+self.bn),axis=0)
+        sum_val_1 = np.sum(nvals*(np.abs(self.an)**2 + np.abs(self.bn)**2),axis=1)
+        sum_val_2 = np.sum(nvals*np.real(self.an+self.bn),axis=1)
         scat = 2*np.pi*sum_val_1/self.k**2
         extinc = 2*np.pi*sum_val_2/self.k**2
         absorb = extinc - scat

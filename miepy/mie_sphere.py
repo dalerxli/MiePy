@@ -2,55 +2,74 @@
 mie_sphere calculates the scattering coefficients of a sphere using Mie theory
 """
 import numpy as np
+import pandas as pd
 from miepy.scattering import multipoles
 from miepy.special_functions import riccati_1,riccati_2,vector_spherical_harmonics
+from miepy.material_functions import constant_material
 
 class single_mie_sphere:
-    def __init__(self, nmax, mat, r, eps_b=1, mu_b=1):
-        """Determine an, bn coefficients for a sphere
+    def __init__(self, radius, material, wavelength, Lmax, medium=None):
+        """Solve traditional Mie theory: a single sphere in x-polarized plane wave illumination
+               radius           particle radius
+               material         material material
+               wavelength[N]    wavelength(s) to solve the system at
+               Lmax             maximum number of orders to use in angular momentum expansion
+               medium           material medium (must be non-absorbing, defaults to vacuum)
+        """
 
-               nmax  = maximum number of orders to use
-               mat   = material object
-               r     = radius
-               eps_b = background permittivity
-               mu_b  = background permeability """
+        self.radius = radius
+        self.material = material
+        if np.isscalar(wavelength):
+            self.wavelength = np.array([wavelength], dtype=float)
+        else:
+            self.wavelength = np.asarray(wavelength, dtype=float)
+        self.Lmax = Lmax
+        if medium is None:
+            self.medium = constant_material(1.0, 1.0)
+        else:
+            self.medium = medium
+            if (self.medium.eps(self.wavelength).imag != 0).any()  \
+                         or (self.medium.mu(self.wavelength).imag != 0).any():
+                raise ValueError('medium must be non-absorbing')
 
+        self.Nfreq = len(self.wavelength)
 
-        self.n_b = (eps_b)**.5
-        self.mat = mat
-        self.r = r
-        self.eps_b = eps_b
-        self.mu_b = mu_b
-        self.nmax = nmax
-        self.energy = mat.energy
+        self.material_data = pd.DataFrame()
+        self.material_data['wavelength'] = self.wavelength
+        self.material_data['eps'] = self.material.eps(self.wavelength)
+        self.material_data['mu'] = self.material.mu(self.wavelength)
+        self.material_data['n'] = np.sqrt(self.material_data['eps']*self.material_data['mu'])
+        self.material_data['eps_b'] = self.medium.eps(self.wavelength)
+        self.material_data['mu_b'] = self.medium.mu(self.wavelength)
+        self.material_data['n_b'] = np.sqrt(self.material_data['eps_b']*self.material_data['mu_b'])
 
-        self.an = np.zeros((nmax,mat.Nfreq), dtype=np.complex)
-        self.bn = np.zeros((nmax,mat.Nfreq), dtype=np.complex)
-        self.cn = np.zeros((nmax,mat.Nfreq), dtype=np.complex)
-        self.dn = np.zeros((nmax,mat.Nfreq), dtype=np.complex)
+        self.an = np.zeros((self.Nfreq, self.Lmax), dtype=np.complex)
+        self.bn = np.zeros((self.Nfreq, self.Lmax), dtype=np.complex)
+        self.cn = np.zeros((self.Nfreq, self.Lmax), dtype=np.complex)
+        self.dn = np.zeros((self.Nfreq, self.Lmax), dtype=np.complex)
 
         self.exterior_computed = False
         self.interior_computed = False
     
     def scattering(self):
-        xvals = self.mat.k*self.r*self.n_b
+        xvals = 2*np.pi/self.material_data['n']*self.radius*self.material_data['n_b']
         for i,x in enumerate(xvals):
-            m = (self.mat.eps[i]/self.eps_b)**.5
-            mt = m*self.mu_b/self.mat.mu[i]
+            m = (self.material_data['eps'][i]/self.material_data['eps_b'][i])**.5
+            mt = m*self.material_data['mu_b'][i]/self.material_data['mu'][i]
 
-            jn,jn_p = riccati_1(self.nmax,x)
-            jnm,jnm_p = riccati_1(self.nmax,m*x)
-            yn,yn_p = riccati_2(self.nmax,x)
+            jn,jn_p = riccati_1(self.Lmax,x)
+            jnm,jnm_p = riccati_1(self.Lmax,m*x)
+            yn,yn_p = riccati_2(self.Lmax,x)
             a = (mt*jnm*jn_p - jn*jnm_p)/(mt*jnm*yn_p - yn*jnm_p)
             b = (jnm*jn_p - mt*jn*jnm_p)/(jnm*yn_p - mt*yn*jnm_p)
-            self.an[:,i] = a[1:]
-            self.bn[:,i] = b[1:]
+            self.an[i] = a[1:]
+            self.bn[i] = b[1:]
         
         self.an = np.nan_to_num(self.an)
         self.bn = np.nan_to_num(self.bn)
 
         self.exterior_computed = True
-        return multipoles(self.mat.wav, self.n_b, self.an, self.bn) 
+        return multipoles(self.material_data['wavelength'], self.material_data['n_b'], self.an, self.bn) 
 
     def compute_cd(self):
         xvals = self.mat.k*self.r*self.n_b
