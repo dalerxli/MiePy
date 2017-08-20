@@ -7,4 +7,4 @@ def Ag(author='Johnson'):
 
 def Au(author='Johnson'):
     """Return gold material from MiePy data"""
-    return load_material("Ai", author)
+    return load_material("Au", author)

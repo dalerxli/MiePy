@@ -5,39 +5,41 @@ absorption, and scattering per multipole
 
 import numpy as np
 import matplotlib.pyplot as plt
-from miepy.materials import material
-from miepy import single_mie_sphere
+from miepy import constant_material, single_mie_sphere
+from miepy.scattering import multipole_label
 
-#wavelength from 400nm to 1000nm
-wav = np.linspace(400,1000,1000)
+# wavelength from 400nm to 1000nm
+wavelengths = np.linspace(400e-9,1000e-9,1000)
 
-#create a material with n = 3.7 (eps = n^2) at all wavelengths
-eps = 3.7**2*np.ones(1000)
-mu = 1*np.ones(1000)
-dielectric = material(wav,eps,mu)     #material object
+# create a material with n = 3.7 (eps = n^2) at all wavelengths
+dielectric = constant_material(3.7**2)
 
-#calculate scattering coefficients
-rad = 100       # 100 nm radius
-Nmax = 10       # Use up to 10 multipoles
-m = single_mie_sphere(Nmax, dielectric, rad).scattering() #scattering object
+# Calculate scattering coefficients
+radius = 100e-9    # 100 nm radius
+Lmax = 10          # Use up to 10 multipoles
+sphere = single_mie_sphere(radius, dielectric, wavelengths, Lmax)
 
 # Figure 1: Scattering and Absorption
-plt.figure(1)
-plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-C,A = m.scattering()     # Returns scat,absorp arrays
-plt.plot(m.energy,C,label="Scattering", linewidth=2)
-plt.plot(m.energy,A,label="Absorption", linewidth=2)
-plt.legend()
-plt.xlabel("Photon energy (eV)")
-plt.ylabel("Scattering Intensity")
+fig, ax1 = plt.subplots()
+S,A,_ = sphere.cross_sections()
+plt.plot(wavelengths*1e9, S, label="Scattering", linewidth=2)
+plt.plot(wavelengths*1e9, A, label="Absorption", linewidth=2)
 
 # Figure 2: Scattering per multipole
-plt.figure(2)
-plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-plt.plot(m.energy,C,label="Total", linewidth=2)  #plot total scattering
-m.plot_scattering_modes(2)    #plots all modes up n=2 (dipole,quadrupole)
-plt.legend()
-plt.xlabel("Photon energy (eV)")
-plt.ylabel("Scattering Intensity")
-plt.show()
+fig, ax2 = plt.subplots()
+plt.plot(wavelengths*1e9, S, label="Total", linewidth=2)
+S,*_ = sphere.cross_sections_per_multipole()
 
+for i in range(2):
+    for j in range(2):
+        plt.plot(wavelengths*1e9, S[:,i,j], label=multipole_label(i,j))
+
+# Set figure properties
+for ax in (ax1,ax2):
+    ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+    ax.legend()
+    ax.set(xlabel="wavelength (nm)", ylabel=r"cross section (m$^2$)")
+ax1.set_title("Total scattering")
+ax2.set_title("Scattering per multipole")
+
+plt.show()

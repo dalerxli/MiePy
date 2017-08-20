@@ -1,43 +1,44 @@
 """
-Example of how to make a silver sphere  and plot material data,
-scattering, absorption, and scattering per multipole
+Example of how to make a Ag sphere and plot scattering,
+absorption, and scattering per multipole
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
-from miepy.materials import Ag, plot_material
-from miepy import single_mie_sphere
+import miepy
 
-#create a silver material (wavelengths 300-1100nm)
-silver = Ag()     #material object
+# wavelength from 400nm to 1000nm
+wavelengths = np.linspace(400e-9,1000e-9,1000)
 
-#calculate scattering coefficients
-rad = 200       # 200 nm radius
-Nmax = 10       # Use up to 10 multipoles
-m = single_mie_sphere(Nmax, silver, rad).scattering() #scattering object
+# Ag material
+Ag = miepy.materials.predefined.Au()
 
-# Figure 1: Ag eps & mu data
-plt.figure(1)
-plot_material(silver)
+# Calculate scattering coefficients
+radius = 100e-9    # 100 nm radius
+Lmax = 10          # Use up to 10 multipoles
+sphere = miepy.single_mie_sphere(radius, Ag, wavelengths, Lmax)
 
+# Figure 1: Scattering and Absorption
+fig, ax1 = plt.subplots()
+S,A,_ = sphere.cross_sections()
+plt.plot(wavelengths*1e9, S, label="Scattering", linewidth=2)
+plt.plot(wavelengths*1e9, A, label="Absorption", linewidth=2)
 
-# Figure 2: Scattering and Absorption
-plt.figure(2)
-plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-C,A = m.scattering()     # Returns scat,absorp arrays
-plt.plot(m.energy,C,label="Scattering", linewidth=2)
-plt.plot(m.energy,A,label="Absorption", linewidth=2)
-plt.legend()
-plt.xlabel("Photon energy (eV)")
-plt.ylabel("Scattering Intensity")
+# Figure 2: Scattering per multipole
+fig, ax2 = plt.subplots()
+plt.plot(wavelengths*1e9, S, label="Total", linewidth=2)
+S,*_ = sphere.cross_sections_per_multipole()
 
-# Figure 3: Scattering per multipole
-plt.figure(3)
-plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-plt.plot(m.energy,C,label="Total", linewidth=2)  #plot total scattering
-m.plot_scattering_modes(4)    #plots all modes up n=4
-plt.legend()
-plt.xlabel("Photon energy (eV)")
-plt.ylabel("Scattering Intensity")
+for i in range(2):
+    for j in range(2):
+        plt.plot(wavelengths*1e9, S[:,i,j], label=miepy.scattering.multipole_label(i,j))
+
+# Set figure properties
+for ax in (ax1,ax2):
+    ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+    ax.legend()
+    ax.set(xlabel="wavelength (nm)", ylabel=r"cross section (m$^2$)")
+ax1.set_title("Total scattering")
+ax2.set_title("Scattering per multipole")
+
 plt.show()
-
