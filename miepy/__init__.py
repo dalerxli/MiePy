@@ -5,15 +5,14 @@ Python module to calcuate scattering coefficients of a plane wave incident on a 
 """
 
 #main submodules
-from . import scattering
-from . import materials
 from . import mie_sphere
 from . import mie_core_shell
-from . import array_io
 from . import particles
 from . import sources
+from . import scattering
+from . import material_functions
 
 from .mie_sphere import single_mie_sphere
 from .mie_core_shell import single_mie_core_shell
-from .materials import material, load_material
+from .material_functions import material
 from .particles import particle, particle_system
