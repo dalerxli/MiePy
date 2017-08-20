@@ -106,5 +106,3 @@ class multipoles:
 
         header = header.format(delimiter)
         out = np.array(out_data).T
-        miepy.array_io.save(filename, out, delimiter, header)
-
