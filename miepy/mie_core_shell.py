@@ -3,7 +3,6 @@ mie_core_shell calculates the scattering coefficients of a core-shell structure 
 """
 
 import numpy as np
-from miepy.scattering import multipoles
 from miepy.special_functions import riccati_1_single,riccati_2_single,riccati_3_single
 R1 = riccati_1_single
 R2 = riccati_2_single
@@ -71,4 +70,3 @@ def single_mie_core_shell(nmax, mat_in, mat_out,  r_in, r_out, eps_b=1, mu_b=1):
     
     an = np.nan_to_num(an)
     bn = np.nan_to_num(bn)
-    return multipoles(mat_in.wav, nb, an,bn) 

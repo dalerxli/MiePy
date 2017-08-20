@@ -3,7 +3,7 @@ mie_sphere calculates the scattering coefficients of a sphere using Mie theory
 """
 import numpy as np
 import pandas as pd
-from miepy.scattering import multipoles
+import miepy
 from miepy.special_functions import riccati_1,riccati_2,vector_spherical_harmonics
 from miepy.material_functions import constant_material
 
@@ -11,10 +11,10 @@ class single_mie_sphere:
     def __init__(self, radius, material, wavelength, Lmax, medium=None):
         """Solve traditional Mie theory: a single sphere in x-polarized plane wave illumination
                radius           particle radius
-               material         material material
+               material         particle material
                wavelength[N]    wavelength(s) to solve the system at
                Lmax             maximum number of orders to use in angular momentum expansion
-               medium           material medium (must be non-absorbing, defaults to vacuum)
+               medium           material medium (must be non-absorbing; defaults to vacuum)
         """
 
         self.radius = radius
@@ -42,17 +42,21 @@ class single_mie_sphere:
         self.material_data['eps_b'] = self.medium.eps(self.wavelength)
         self.material_data['mu_b'] = self.medium.mu(self.wavelength)
         self.material_data['n_b'] = np.sqrt(self.material_data['eps_b']*self.material_data['mu_b'])
+        self.material_data['k'] = 2*np.pi*self.material_data['n_b']/self.wavelength
 
         self.an = np.zeros((self.Nfreq, self.Lmax), dtype=np.complex)
         self.bn = np.zeros((self.Nfreq, self.Lmax), dtype=np.complex)
         self.cn = np.zeros((self.Nfreq, self.Lmax), dtype=np.complex)
         self.dn = np.zeros((self.Nfreq, self.Lmax), dtype=np.complex)
 
+        self.scattering_properties = (self.an, self.bn, self.material_data['k'])
+
         self.exterior_computed = False
         self.interior_computed = False
     
-    def scattering(self):
-        xvals = 2*np.pi/self.material_data['n']*self.radius*self.material_data['n_b']
+    def solve_exterior(self):
+        """solve for the exterior of the sphere, the an and bn coefficients"""
+        xvals = self.material_data['k']*self.radius
         for i,x in enumerate(xvals):
             m = (self.material_data['eps'][i]/self.material_data['eps_b'][i])**.5
             mt = m*self.material_data['mu_b'][i]/self.material_data['mu'][i]
@@ -69,9 +73,10 @@ class single_mie_sphere:
         self.bn = np.nan_to_num(self.bn)
 
         self.exterior_computed = True
-        return multipoles(self.material_data['wavelength'], self.material_data['n_b'], self.an, self.bn) 
+        return self.an, self.bn
 
-    def compute_cd(self):
+    def solve_interior(self):
+        """solve for the interior of the sphere, the cn and dn coefficients"""
         xvals = self.mat.k*self.r*self.n_b
         for i,x in enumerate(xvals):
             m = (self.mat.eps[i]/self.eps_b)**.5
@@ -90,12 +95,26 @@ class single_mie_sphere:
         self.dn = np.nan_to_num(self.dn)
 
         self.interior_computed = True
+        return self.cn, self.dn
+
+    def cross_sections(self):
+        """Return the 3 cross-sections: (Scattering, Absorbption, Extinction)"""
+        if not self.exterior_computed: self.solve_exterior()
+        return miepy.cross_sections(*self.scattering_properties)
+
+    def cross_sections_per_multipole(self):
+        """Return the 3 cross-sections per multipole: (Scattering, Absorbption, Extinction)"""
+        if not self.exterior_computed: self.solve_exterior()
+        return (miepy.scattering_per_multipole(*self.scattering_properties),
+                miepy.absorbption_per_multipole(*self.scattering_properties),
+                miepy.extinction_per_multipole(*self.scattering_properties))
+
 
     def E_field(self, k_index, Nmax = None):
         """Return an electric field function E(r,theta,phi) for a given wavenumber index"""
         if not Nmax: Nmax = self.nmax
-        if not self.interior_computed: self.compute_cd()
-        if not self.exterior_computed: self.scattering()
+        if not self.interior_computed: self.solve_interior()
+        if not self.exterior_computed: self.solve_exterior()
 
         def E_func(r, theta, phi):
             E = np.zeros(shape = [3] + list(r.shape), dtype=np.complex)

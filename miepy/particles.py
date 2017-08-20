@@ -6,11 +6,9 @@ import numpy as np
 from miepy.mie_sphere import single_mie_sphere
 from mpl_toolkits.mplot3d import Axes3D
 from my_pytools.my_numpy.integrate import simps_2d
+from my_pytools.my_numpy.indices import levi_civita
 
-levi = np.zeros((3,3,3))
-levi[0,1,2] = levi[1,2,0] = levi[2,0,1] = 1
-levi[0,2,1] = levi[1,0,2] = levi[2,1,0] = -1
-
+levi = levi_civita()
 Ntheta = 51
 Nphi = 31
 
