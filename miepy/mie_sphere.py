@@ -6,7 +6,6 @@ import pandas as pd
 import miepy
 from miepy.special_functions import riccati_1,riccati_2,vector_spherical_harmonics
 from miepy.material_functions import constant_material
-from collections import namedtuple
 
 class single_mie_sphere:
     def __init__(self, radius, material, wavelength, Lmax, medium=None):
@@ -35,39 +34,31 @@ class single_mie_sphere:
 
         self.Nfreq = len(self.wavelength)
 
-        material_type = namedtuple('material_data', ['wavelength', 'k', 'eps', 'mu', 'n', 'eps_b', 'mu_b', 'n_b'])
-
-        eps   = self.material.eps(self.wavelength)
-        mu    = self.material.mu(self.wavelength)
-        eps_b = self.medium.eps(self.wavelength)
-        mu_b  = self.medium.mu(self.wavelength)
-        n_b   = np.sqrt(eps_b*mu_b)
-        self.material_data = material_type(
-               wavelength = self.wavelength,
-               k          = 2*np.pi*n_b/self.wavelength,
-               eps        = eps,
-               mu         = mu,
-               n          = np.sqrt(eps*mu),
-               eps_b      = eps_b,
-               mu_b       = mu_b,
-               n_b        = n_b,
-               )
+        self.material_data = {}
+        self.material_data['wavelength'] = self.wavelength
+        self.material_data['eps']        = self.material.eps(self.wavelength)
+        self.material_data['mu']         = self.material.mu(self.wavelength)
+        self.material_data['eps_b']      = self.medium.eps(self.wavelength)
+        self.material_data['mu_b']       = self.medium.mu(self.wavelength)
+        self.material_data['n']          = np.sqrt(self.material_data['eps']*self.material_data['mu'])
+        self.material_data['n_b']        = np.sqrt(self.material_data['eps_b']*self.material_data['mu_b'])
+        self.material_data['k']          = 2*np.pi*self.material_data['n_b']/self.wavelength
                
         self.an = np.zeros((self.Nfreq, self.Lmax), dtype=np.complex)
         self.bn = np.zeros((self.Nfreq, self.Lmax), dtype=np.complex)
         self.cn = np.zeros((self.Nfreq, self.Lmax), dtype=np.complex)
         self.dn = np.zeros((self.Nfreq, self.Lmax), dtype=np.complex)
 
-        self.scattering_properties = (self.an, self.bn, self.material_data.k)
+        self.scattering_properties = (self.an, self.bn, self.material_data['k'])
 
         self.exterior_computed = False
         self.interior_computed = False
     
     def solve_exterior(self):
         """solve for the exterior of the sphere, the an and bn coefficients"""
-        xvals = self.material_data.k*self.radius
-        m = (self.material_data.eps/self.material_data.eps_b)**.5
-        mt = m*self.material_data.mu_b/self.material_data.mu
+        xvals = self.material_data['k']*self.radius
+        m = (self.material_data['eps']/self.material_data['eps_b'])**.5
+        mt = m*self.material_data['mu_b']/self.material_data['mu']
         for i,x in enumerate(xvals):
             jn,jn_p = riccati_1(self.Lmax,x)
             jnm,jnm_p = riccati_1(self.Lmax,m[i]*x)
