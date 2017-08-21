@@ -121,8 +121,8 @@ def scattered_H(an, bn, k, n, mu):
             En = 1j**n*(2*n+1)/(n*(n+1))
 
             VSH = vector_spherical_harmonics(n,3)
-            H += n*En/mu*(1j*bn*VSH.N_o1n(k)(r,theta,phi)  \
-                            + an*VSH.M_e1n(k)(r,theta,phi))
+            H += n*En/mu*(1j*bn[n-1]*VSH.N_o1n(k)(r,theta,phi)  \
+                            + an[n-1]*VSH.M_e1n(k)(r,theta,phi))
         return -H
     return H_func
 
@@ -141,7 +141,7 @@ def interior_H(cn, dn, k, n, mu):
             En = 1j**n*(2*n+1)/(n*(n+1))
 
             VSH = vector_spherical_harmonics(n,1)
-            H += -n*En/mu*(dn*VSH.M_e1n(k)(r,theta,phi)  \
-                            + 1j*cn*VSH.N_o1n(k)(r,theta,phi))
+            H += -n*En/mu*(dn[n-1]*VSH.M_e1n(k)(r,theta,phi)  \
+                            + 1j*cn[n-1]*VSH.N_o1n(k)(r,theta,phi))
         return -H
     return H_func
