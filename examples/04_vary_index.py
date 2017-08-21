@@ -25,7 +25,9 @@ for i,index in enumerate(tqdm(indices)):
     dielectric = miepy.constant_material(index**2)
     sphere = miepy.single_mie_sphere(radius, dielectric, wavelengths, Lmax)
 
+    sphere.solve_exterior()
     S,*_ = sphere.cross_sections()
+
     data[i] = S
 
 # Plot results
