@@ -1,3 +1,10 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:f31fe2f10676803b8428be2066d094f40da0eeebc1d3ff1b5fd63d3c21bddab0
-size 551
+# this file is part of refractiveindex.info database
+# refractiveindex.info database is in the public domain
+# copyright and related rights waived via CC0 1.0
+
+REFERENCES: "D. F. Edwards and E. Ochoa , Infrared Refractive Indexes of Silicon, <a href=\"https://doi.org/10.1364/AO.19.004130\"><i>Appl. Opt.</i>, <b>19</b>, 4130-4131 (1980)</a>"
+COMMENTS: "26 °C, crystal orientation <111>; 3-4 Ω-cm, n-type (phosporous-dopped)"
+DATA:
+  - type: formula 7
+    range: 2.4373 25
+    coefficients: 3.41983 0.159906 -0.123109 1.26878E-6 -1.95104E-9

@@ -1,3 +1,10 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:8e22d0ac58a1697f4c440de46e9d0fd8c397c4a859ee85009a84d422fe3f6e6d
-size 651
+# this file is part of refractiveindex.info database
+# refractiveindex.info database is in the public domain
+# copyright and related rights waived via CC0 1.0
+
+REFERENCES: "F. Zernike, Jr. Refractive Indices of Ammonium Dihydrogen Phosphate and Potassium Dihydrogen Phosphate between 2000 Å and 1.5 µ, <a href=\"https://doi.org/10.1364/JOSA.54.001215\"><i>J. Opt. Soc. Am.</i> <b>54</b>, 1215-1219 (1964)</a>. Cited in Handbook of Optics, 3rd edition, Vol. 4. McGraw-Hill 2009."
+COMMENTS: "24.8 °C. Ordinary ray (o)."
+DATA:
+  - type: formula 4
+    range: 0.2138 1.529
+    coefficients: 2.302842 15.102464 2 400 1 0.011125165 0 0.01325366 1

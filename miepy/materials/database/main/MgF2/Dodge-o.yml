@@ -1,3 +1,10 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:8458edc2e56ca73cd1e668477dcab1496aa19bfa1148c051530015168aed0f36
-size 506
+# this file is part of refractiveindex.info database
+# refractiveindex.info database is in the public domain
+# copyright and related rights waived via CC0 1.0
+
+REFERENCES: "M. J. Dodge. Refractive properties of magnesium fluoride, <a href=\"https://doi.org/10.1364/AO.23.001980\"><i>Appl. Opt.</i> <b>23</b>, 1980-1985 (1984)</a>"
+COMMENTS: "19 °C. Ordinary ray (o)."
+DATA:
+  - type: formula 1
+    range: 0.2 7.0
+    coefficients: 0 0.48755108 0.04338408 0.39875031 0.09461442 2.3120353 23.793604
