@@ -38,9 +38,9 @@ class single_mie_sphere:
         self.material_data['wavelength'] = self.wavelength
         self.material_data['eps']        = self.material.eps(self.wavelength)
         self.material_data['mu']         = self.material.mu(self.wavelength)
+        self.material_data['n']          = np.sqrt(self.material_data['eps']*self.material_data['mu'])
         self.material_data['eps_b']      = self.medium.eps(self.wavelength)
         self.material_data['mu_b']       = self.medium.mu(self.wavelength)
-        self.material_data['n']          = np.sqrt(self.material_data['eps']*self.material_data['mu'])
         self.material_data['n_b']        = np.sqrt(self.material_data['eps_b']*self.material_data['mu_b'])
         self.material_data['k']          = 2*np.pi*self.material_data['n_b']/self.wavelength
                
