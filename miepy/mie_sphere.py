@@ -6,6 +6,7 @@ import pandas as pd
 import miepy
 from miepy.special_functions import riccati_1,riccati_2,vector_spherical_harmonics
 from miepy.material_functions import constant_material
+from miepy.scattering import scattered_E,scattered_H,interior_E,interior_H
 
 class single_mie_sphere:
     def __init__(self, radius, material, wavelength, Lmax, medium=None):
@@ -116,69 +117,55 @@ class single_mie_sphere:
 
         if not self.interior_computed: self.solve_interior()
         if not self.exterior_computed: self.solve_exterior()
+
+        an = self.an[index, :Lmax+1]
+        bn = self.bn[index, :Lmax+1]
+        cn = self.cn[index, :Lmax+1]
+        dn = self.dn[index, :Lmax+1]
         mat = self.material_data
 
         def E_func(r, theta, phi):
             E = np.zeros(shape = [3] + list(r.shape), dtype=np.complex)
             id_inside = r <= self.radius
 
-            for n in range(1,Lmax+1):
-                En = 1j**n*(2*n+1)/(n*(n+1))
+            k = mat['k'][index]
+            E[:,~id_inside] = scattered_E(an, bn, k)(r[~id_inside], theta[~id_inside], phi[~id_inside])
 
-                an = self.an[index, n-1]
-                bn = self.bn[index, n-1]
-                cn = self.cn[index, n-1]
-                dn = self.dn[index, n-1]
-
-                k = mat['k'][index]
-                VSH = vector_spherical_harmonics(n,3)
-                E[:,~id_inside] += En*(1j*an*VSH.N_e1n(k)(r[~id_inside],theta[~id_inside],phi[~id_inside])  \
-                                - bn*VSH.M_o1n(k)(r[~id_inside],theta[~id_inside],phi[~id_inside]))
-
-                k = 2*np.pi*mat['n'][index]/self.wavelength[index]
-                VSH = vector_spherical_harmonics(n,1)
-                E[:,id_inside] += En*(cn*VSH.M_o1n(k)(r[id_inside],theta[id_inside],phi[id_inside])  \
-                                - 1j*dn*VSH.N_e1n(k)(r[id_inside],theta[id_inside],phi[id_inside]))
-
-            return -E
+            k = 2*np.pi*mat['n'][index]/self.wavelength[index]
+            E[:,id_inside] = interior_E(cn, dn, k)(r[id_inside], theta[id_inside], phi[id_inside])
+            return E
 
         return E_func
 
     def H_field(self, index=None, Lmax=None):
         """Return a magnetic field function H(r,theta,phi) for a given wavenumber index"""
+
         if Lmax is None: Lmax = self.Lmax
         if index is None:
             index = np.s_[:]
 
         if not self.interior_computed: self.solve_interior()
         if not self.exterior_computed: self.solve_exterior()
+
+        an = self.an[index, :Lmax+1]
+        bn = self.bn[index, :Lmax+1]
+        cn = self.cn[index, :Lmax+1]
+        dn = self.dn[index, :Lmax+1]
         mat = self.material_data
 
         def H_func(r, theta, phi):
             H = np.zeros(shape = [3] + list(r.shape), dtype=np.complex)
             id_inside = r <= self.radius
 
-            for n in range(1,Lmax+1):
-                En = 1j**n*(2*n+1)/(n*(n+1))
+            k = mat['k'][index]
+            n = mat['n_b'][index]
+            mu = mat['mu_b'][index]
+            H[:,~id_inside] = scattered_H(an, bn, k, n, mu)(r[~id_inside], theta[~id_inside], phi[~id_inside])
 
-
-                an = self.an[index, n-1]
-                bn = self.bn[index, n-1]
-                cn = self.cn[index, n-1]
-                dn = self.dn[index, n-1]
-
-                k = mat['k'][index]
-                omega = 2*np.pi/self.wavelength[index]  # FIX THIS
-                VSH = vector_spherical_harmonics(n,3)
-                H[:,~id_inside] += k*En/(omega*mat['mu_b'][index])*(1j*bn*VSH.N_o1n(k)(r[~id_inside],theta[~id_inside],phi[~id_inside])  \
-                                + an*VSH.M_e1n(k)(r[~id_inside],theta[~id_inside],phi[~id_inside]))
-
-                k = 2*np.pi*mat['n'][index]/self.wavelength[index]
-                mu = mat['mu'][index]
-                VSH = vector_spherical_harmonics(n,1)
-                H[:,id_inside] += -k*En/(omega*mu)*(dn*VSH.M_e1n(k)(r[id_inside],theta[id_inside],phi[id_inside])  \
-                                + 1j*cn*VSH.N_o1n(k)(r[id_inside],theta[id_inside],phi[id_inside]))
-
-            return -H
+            k = 2*np.pi*mat['n'][index]/self.wavelength[index]
+            n = mat['n'][index]
+            mu = mat['mu'][index]
+            H[:,id_inside] = interior_H(cn, dn, k, n, mu)(r[id_inside], theta[id_inside], phi[id_inside])
+            return H
 
         return H_func

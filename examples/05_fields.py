@@ -19,7 +19,7 @@ radius = 20e-9       # 100 nm radius
 Lmax = 1       # Use up to 10 multipoles
 sphere = miepy.single_mie_sphere(radius, Ag, wavelength, Lmax)
 
-E_func = sphere.E_field(index=999)
+E_func = sphere.H_field(index=999)
 x = np.linspace(-2*radius,2*radius,100)
 y = np.linspace(-2*radius,2*radius,100)
 z = np.array([radius*0.0])

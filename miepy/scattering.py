@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import miepy
 import scipy.constants as constants
+from miepy.special_functions import riccati_1,riccati_2,vector_spherical_harmonics
 
 def scattering_per_multipole(an, bn, k):
     """Scattering cross-section per multipole. Returns scat[Nfreq,2,Lmax].
@@ -68,3 +69,79 @@ def multipole_label(T,L):
     else:
         last = f" (L = {L})" 
     return first + last
+
+def scattered_E(an, bn, k):
+    """For a given an, bn, k, return the scattered electric field function E(r,theta,phi)
+                an[L]       an coefficients
+                an[L]       bn coefficients
+                k           wavenumber in the medium
+    """
+    Lmax = an.shape[0]
+    def E_func(r, theta, phi):
+        E = np.zeros(shape = [3] + list(r.shape), dtype=np.complex)
+        for n in range(1,Lmax+1):
+            En = 1j**n*(2*n+1)/(n*(n+1))
+
+            VSH = vector_spherical_harmonics(n,3)
+            E += En*(1j*an[n-1]*VSH.N_e1n(k)(r,theta,phi)  \
+                        - bn[n-1]*VSH.M_o1n(k)(r,theta,phi))
+        return -E
+    return E_func
+
+def interior_E(cn, dn, k):
+    """For a given cn, dn, k, return the interior electric field function E(r,theta,phi) for a sphere
+                cn[L]       cn coefficients
+                dn[L]       dn coefficients
+                k           wavenumber inside the sphere
+    """
+    Lmax = cn.shape[0]
+    def E_func(r, theta, phi):
+        E = np.zeros(shape = [3] + list(r.shape), dtype=np.complex)
+        for n in range(1,Lmax+1):
+            En = 1j**n*(2*n+1)/(n*(n+1))
+
+            VSH = vector_spherical_harmonics(n,1)
+            E += En*(cn[n-1]*VSH.M_o1n(k)(r,theta,phi)  \
+                     - 1j*dn[n-1]*VSH.N_e1n(k)(r,theta,phi))
+        return -E
+    return E_func
+
+def scattered_H(an, bn, k, n, mu):
+    """For a given an, bn, k, return the scattered electric field function H(r,theta,phi)
+                an[L]       an coefficients
+                an[L]       bn coefficients
+                k           wavenumber in the medium
+                n           index of refraction of the medium
+                mu          permeability of the medium
+    """
+    Lmax = an.shape[0]
+    def H_func(r, theta, phi):
+        H = np.zeros(shape = [3] + list(r.shape), dtype=np.complex)
+        for n in range(1,Lmax+1):
+            En = 1j**n*(2*n+1)/(n*(n+1))
+
+            VSH = vector_spherical_harmonics(n,3)
+            H += n*En/mu*(1j*bn*VSH.N_o1n(k)(r,theta,phi)  \
+                            + an*VSH.M_e1n(k)(r,theta,phi))
+        return -H
+    return H_func
+
+def interior_H(cn, dn, k, n, mu):
+    """For a given cn, dn, k, return the interior electric field function H(r,theta,phi) for a sphere
+                cn[L]       cn coefficients
+                dn[L]       dn coefficients
+                k           wavenumber inside the sphere
+                n           index of refraction of the sphere
+                mu          permeability of the sphere
+    """
+    Lmax = cn.shape[0]
+    def H_func(r, theta, phi):
+        H = np.zeros(shape = [3] + list(r.shape), dtype=np.complex)
+        for n in range(1,Lmax+1):
+            En = 1j**n*(2*n+1)/(n*(n+1))
+
+            VSH = vector_spherical_harmonics(n,1)
+            H += -n*En/mu*(dn*VSH.M_e1n(k)(r,theta,phi)  \
+                            + 1j*cn*VSH.N_o1n(k)(r,theta,phi))
+        return -H
+    return H_func
