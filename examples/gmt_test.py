@@ -4,41 +4,40 @@ Comparison of single Mie theory and GMT
 
 import numpy as np
 import matplotlib.pyplot as plt
-from miepy.materials import material
-from miepy import single_mie_sphere
-from miepy.particles import particle_system
-from miepy.sources import xpol
+import miepy
 from tqdm import tqdm
 
-#wavelength from 400nm to 1000nm
-wav = np.linspace(400,1000,1000)
+# wavelength from 400nm to 1000nm
+wavelength = np.linspace(400e-9,1000e-9,1000)
 
-#create a material with n = 3.7 (eps = n^2) at all wavelengths
-eps = 3.7**2*np.ones(1000)
-mu = 1*np.ones(1000)
-dielectric = material(wav,eps,mu)     #material object
+# create a material with n = 3.7 (eps = n^2) at all wavelengths
+dielectric = miepy.material_functions.constant_material(3.7**2)
 
-#calculate scattering coefficients
-rad = 100       # 100 nm radius
+# calculate scattering coefficients
+radius = 100e-9       # 100 nm radius
 
 # Single Mie Theory
-Nmax = 10       # Use up to 10 multipoles
-m = single_mie_sphere(Nmax, dielectric, rad).scattering() #scattering object
-C,A = m.scattering()     # Returns scat,absorp arrays
-plt.plot(m.energy,C,label="Single Mie theory", linewidth=2)
+Lmax = 10       # Use up to 10 multipoles
+sphere = miepy.single_mie_sphere(radius, dielectric, wavelength, Lmax)
+S,*_ = sphere.cross_sections()
+plt.plot(wavelength*1e9,S,label="Single Mie theory", linewidth=2)
 
-fluxes = []
-idx = np.arange(0,1000,15)
-for i in tqdm(idx):
-    mat = material([wav[i]], [eps[i]], [mu[i]])
-    system = particle_system([dict(Nmax=2, material=mat, position=[0,0,0], radius=rad)], xpol())
-    flux = system.particle_flux(0)
-    fluxes.append(flux)
 
-plt.plot(m.energy[idx],  fluxes, label='GMT')
+# Generalized Mie Theory (GMT)
+particles = miepy.spheres(position=[[0,0,0]], radius=[radius], material=[dielectric])
+# alternative call
+# particles = miepy.spheres(positions=[[0,0,0]], radius=radius, material=dielectric)
+wavelength = np.linspace(400e-9,1000e-9,100)
+source = miepy.sources.x_polarized_plane_wave()
+medium = None
 
-plt.xlabel("Photon energy (eV)")
-plt.ylabel("Scattering Intensity")
+system = miepy.gmt(particles, source, wavelength, Lmax, medium)
+flux = system.particle_flux(0)
+plt.plot(wavelength, flux, label='GMT')
+
+# Plot labels
+plt.xlabel("wavelength (nm)")
+plt.ylabel("Scattering cross-section")
 plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 plt.legend()
 plt.show()
