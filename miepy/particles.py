@@ -270,24 +270,6 @@ class particle_system:
 
         return all_fluxes
 
-    def center_of_mass(self):
-        com = np.zeros(3)
-        for particle in self.particles:
-            com += particle.center
-        com /= self.Nparticles
-        return com
-
-    def moment_of_intertia(self, center = None, rho=1):
-        if center is None:
-            center = self.center_of_mass()
-        I = 0
-        for particle in self.particles:
-            mass = 4/3*np.pi*particle.radius**3*rho
-            di = np.linalg.norm(particle.center - center)
-            Ii = mass*di**2 + 2/5*mass*particle.radius**2
-            I += Ii
-        return I
-
     def net_force(self,center = None, radius = None):
         if center is None:
             center = self.center_of_mass()
