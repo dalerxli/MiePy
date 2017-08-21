@@ -4,12 +4,28 @@ Pre-defined sources that can be used with particle_system
 
 import numpy as np
 
-class plane_wave:
+from abc import ABCMeta, abstractmethod
+
+class source:
+    """source interface base class"""
+    __metaclass__ = ABCMeta
+
+    def __init__(self, amplitude):
+        self.amplitude = amplitude
+
+    @abstractmethod
+    def E(self, r, k): pass
+
+    @abstractmethod
+    def mu(self, r, k): pass
+
+
+class plane_wave(source):
     def __init__(self, polarization, amplitude=1):
+        super().__init__(amplitude)
         polarization = np.asarray(polarization, dtype=np.complex)
         self.polarization = polarization
         self.polarization /= np.linalg.norm(polarization)
-        self.amplitude = amplitude
     
     def E(self, r, k):
         amp = self.amplitude*np.exp(1j*k*r[2])
@@ -22,12 +38,22 @@ class plane_wave:
         pol = np.array([H0_x, H0_y, 0])
         return np.einsum('i...,...->i...', pol, amp)
 
-xpol = lambda amplitude=1: plane_wave(polarization=[1,0],   amplitude=amplitude)
-ypol = lambda amplitude=1: plane_wave(polarization=[0,1],   amplitude=amplitude)
-rhc  = lambda amplitude=1: plane_wave(polarization=[1,1j],  amplitude=amplitude)
-lhc  = lambda amplitude=1: plane_wave(polarization=[1,-1j], amplitude=amplitude)
+def x_polarized_plane_wave(amplitude=1):
+    return plane_wave(polarization=[1,0], amplitude=amplitude)
 
-class azimuthal:
+def y_polarized_plane_wave(amplitude=1):
+    return plane_wave(polarization=[0,1], amplitude=amplitude)
+
+def rhc_polarized_plane_wave(amplitude=1):
+    return plane_wave(polarization=[1,1j], amplitude=amplitude)
+
+def lhc_polarized_plane_wave(amplitude=1):
+    return plane_wave(polarization=[1,-1j], amplitude=amplitude)
+
+class azimuthal(source):
+    def __init__(self, amplitude=1):
+        super().__init__(amplitude)
+
     def E(self, r, k):
         rho = (r[0]**2 + r[1]**2)**0.5
         theta = np.arctan2(r[1], r[0])
@@ -43,7 +69,10 @@ class azimuthal:
         return pol*amp 
 
 
-class radial:
+class radial(source):
+    def __init__(self, amplitude=1):
+        super().__init__(amplitude)
+
     def E(self, r, k):
         rho = (r[0]**2 + r[1]**2)**0.5
         theta = np.arctan2(r[1], r[0])
