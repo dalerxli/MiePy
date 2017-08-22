@@ -18,16 +18,18 @@ force2 = []
 torque1 = []
 torque2 = []
 
-for separation in tqdm(separations):
-    spheres = miepy.spheres([[separation/2,0,0], [-separation/2,0,0]], radius, Ag)
+spheres = miepy.spheres([[separations[0]/2,0,0], [-separations[0]/2,0,0]], radius, Ag)
+sol1 = miepy.gmt(spheres, source, 600e-9, 1, interactions=False)
+sol2 = miepy.gmt(spheres, source, 600e-9, 1, interactions=True)
 
-    sol = miepy.gmt(spheres, source, 600e-9, 1, interactions=False)
-    F,T = map(np.squeeze, sol.force_on_particle(0))
+for separation in tqdm(separations):
+    sol1.update_position(np.array([[separation/2,0,0], [-separation/2,0,0]]))
+    F,T = map(np.squeeze, sol1.force_on_particle(0))
     force1.append(F[0])
     torque1.append(T[2])
 
-    sol = miepy.gmt(spheres, source, 600e-9, 1, interactions=True)
-    F,T = map(np.squeeze, sol.force_on_particle(0))
+    sol2.update_position(np.array([[separation/2,0,0], [-separation/2,0,0]]))
+    F,T = map(np.squeeze, sol2.force_on_particle(0))
     force2.append(F[0])
     torque2.append(T[2])
 

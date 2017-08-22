@@ -47,6 +47,7 @@ def discrete_sphere(radius, Ntheta, Nphi, center=None):
     return map(np.squeeze, (X,Y,Z,THETA,PHI,tau,phi))
 
 #TODO swap all indices, so that [N,3] => [3,N]
+#TODO make position a property so that it can be set properly (if input is a list)
 class spheres:
     """A collection of N spheres"""
     def __init__(self, position, radius, material):
@@ -130,10 +131,7 @@ class gmt:
         if (self.interactions):
             self._solve_interactions()
         else:
-            pos = self.spheres.position.T
-            for k in range(self.Nfreq):
-                Einc = self.source.E(pos,self.material_data['k'][k])
-                self.p[...,k] = Einc[:2,:]
+            self._set_without_interactions()
     
     def E_field(self, x, y, z, inc=True):
         """Compute the electric field due to all particles
@@ -301,6 +299,25 @@ class gmt:
             force_data[...,i], torque_data[...,i] = self.force_on_particle(i, inc=inc)
 
         return force_data, torque_data
+
+    def update_position(self, position):
+        """Update the positions of the spheres
+
+            Arguments
+                position[N,3]       new particle positions
+        """
+        self.spheres.position = position
+
+        if (self.interactions):
+            self._solve_interactions()
+        else:
+            self._set_without_interactions()
+
+    def _set_without_interactions(self):
+        pos = self.spheres.position.T
+        for k in range(self.Nfreq):
+            Einc = self.source.E(pos,self.material_data['k'][k])
+            self.p[...,k] = Einc[:2,:]
 
     #TODO vectorize for loops. Avoid transpose of position->pass x,y,z to source instead...?
     def _solve_interactions(self):
