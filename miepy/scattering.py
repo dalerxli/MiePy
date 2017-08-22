@@ -79,12 +79,12 @@ def scattered_E(an, bn, k):
     Lmax = an.shape[0]
     def E_func(r, theta, phi):
         E = np.zeros(shape = [3] + list(r.shape), dtype=np.complex)
-        for n in range(1,Lmax+1):
-            En = 1j**n*(2*n+1)/(n*(n+1))
+        for L in range(1,Lmax+1):
+            En = 1j**L*(2*L+1)/(L*(L+1))
 
-            VSH = vector_spherical_harmonics(n,3)
-            E += En*(1j*an[n-1]*VSH.N_e1n(k)(r,theta,phi)  \
-                        - bn[n-1]*VSH.M_o1n(k)(r,theta,phi))
+            VSH = vector_spherical_harmonics(L,3)
+            E += En*(1j*an[L-1]*VSH.N_e1n(k)(r,theta,phi)  \
+                        - bn[L-1]*VSH.M_o1n(k)(r,theta,phi))
         return -E
     return E_func
 
@@ -97,32 +97,32 @@ def interior_E(cn, dn, k):
     Lmax = cn.shape[0]
     def E_func(r, theta, phi):
         E = np.zeros(shape = [3] + list(r.shape), dtype=np.complex)
-        for n in range(1,Lmax+1):
-            En = 1j**n*(2*n+1)/(n*(n+1))
+        for L in range(1,Lmax+1):
+            En = 1j**L*(2*L+1)/(L*(L+1))
 
-            VSH = vector_spherical_harmonics(n,1)
-            E += En*(cn[n-1]*VSH.M_o1n(k)(r,theta,phi)  \
-                     - 1j*dn[n-1]*VSH.N_e1n(k)(r,theta,phi))
+            VSH = vector_spherical_harmonics(L,1)
+            E += En*(cn[L-1]*VSH.M_o1n(k)(r,theta,phi)  \
+                     - 1j*dn[L-1]*VSH.N_e1n(k)(r,theta,phi))
         return -E
     return E_func
 
-def scattered_H(an, bn, k, n, mu):
+def scattered_H(an, bn, k, n_b, mu_b):
     """For a given an, bn, k, return the scattered electric field function H(r,theta,phi)
                 an[L]       an coefficients
                 an[L]       bn coefficients
                 k           wavenumber in the medium
-                n           index of refraction of the medium
-                mu          permeability of the medium
+                n_b         index of refraction of the medium
+                mu_b        permeability of the medium
     """
     Lmax = an.shape[0]
     def H_func(r, theta, phi):
         H = np.zeros(shape = [3] + list(r.shape), dtype=np.complex)
-        for n in range(1,Lmax+1):
-            En = 1j**n*(2*n+1)/(n*(n+1))
+        for L in range(1,Lmax+1):
+            En = 1j**L*(2*L+1)/(L*(L+1))
 
-            VSH = vector_spherical_harmonics(n,3)
-            H += n*En/mu*(1j*bn[n-1]*VSH.N_o1n(k)(r,theta,phi)  \
-                            + an[n-1]*VSH.M_e1n(k)(r,theta,phi))
+            VSH = vector_spherical_harmonics(L,3)
+            H += n_b*En/mu_b*(1j*bn[L-1]*VSH.N_o1n(k)(r,theta,phi)  \
+                            + an[L-1]*VSH.M_e1n(k)(r,theta,phi))
         return -H
     return H_func
 
@@ -137,11 +137,11 @@ def interior_H(cn, dn, k, n, mu):
     Lmax = cn.shape[0]
     def H_func(r, theta, phi):
         H = np.zeros(shape = [3] + list(r.shape), dtype=np.complex)
-        for n in range(1,Lmax+1):
-            En = 1j**n*(2*n+1)/(n*(n+1))
+        for L in range(1,Lmax+1):
+            En = 1j**L*(2*L+1)/(L*(L+1))
 
-            VSH = vector_spherical_harmonics(n,1)
-            H += -n*En/mu*(dn[n-1]*VSH.M_e1n(k)(r,theta,phi)  \
-                            + 1j*cn[n-1]*VSH.N_o1n(k)(r,theta,phi))
+            VSH = vector_spherical_harmonics(L,1)
+            H += -n*En/mu*(dn[L-1]*VSH.M_e1n(k)(r,theta,phi)  \
+                            + 1j*cn[L-1]*VSH.N_o1n(k)(r,theta,phi))
         return -H
     return H_func
