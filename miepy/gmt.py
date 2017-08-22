@@ -2,7 +2,6 @@
 The Generalized Mie Theory (GMT) for a collection of spheres.
 """
 import numpy as np
-from collections import namedtuple
 import miepy
 
 class spheres:
@@ -79,8 +78,83 @@ class gmt:
 
         if (self.interactions):
             self._solve_interactions()
+    
+    def E(self, x, y, z, inc=True):
+        """Compute the electric field due to all particles
+             
+            Arguments:
+                x      x position (array-like) 
+                y      y position (array-like) 
+                z      z position (array-like) 
+                inc    Include the incident field (bool, default=True)
 
-    #TODO vectorize for loops. Avoid transpose of position...?
+            Returns: E[3]
+        """
+        pass
+
+    def H(self, x, y, z, inc=True):
+        """Compute the electric field due to all particles
+             
+            Arguments:
+                x      x position (array-like) 
+                y      y position (array-like) 
+                z      z position (array-like) 
+                inc    Include the incident field (bool, default=True)
+
+            Returns: H[3]
+        """
+        pass
+
+    def flux_from_particle(self, i, buffer=None, inc=False):
+        """Determine the scattered flux from a single particle
+
+            Arguments:
+                i         Particle index
+                buffer    Distance between sphere radius and sphere calculation (default=)
+                inc       Include the incident field (bool, default=False)
+            
+            Returns: flux[M], M = number of wavelengths
+        """
+        pass
+
+    def force_on_particle(self, i, buffer=None, inc=True, torque=False):
+        """Determine the force on a single particle
+
+            Arguments:
+                i         Particle index
+                buffer    Distance between sphere radius and sphere calculation (default=)
+                inc       Include the incident field (bool, default=False)
+                torque    Also calculate the torque (bool, default=False)
+            
+            Returns: F[3,M] or, if torque is True, (F[3,M],T[3,M]), M = number of wavelengths
+        """
+        pass
+
+    def flux(self, buffer=None, inc=False):
+        """Determine the scattered flux from every particle
+
+            Arguments:
+                buffer    Distance between sphere radius and sphere calculation (default=)
+                inc       Include the incident field (bool, default=False)
+            
+            Returns: flux[N,M], N = number of particle, M = number of wavelengths
+        """
+        pass
+
+    def force(self, buffer=None, inc=True, torque=False):
+        """Determine the force on every particle
+
+            Arguments:
+                buffer    Distance between sphere radius and sphere calculation (default=)
+                inc       Include the incident field (bool, default=False)
+                torque    Also calculate the torque (bool, default=False)
+            
+            Returns: F[3,N,M] or, if torque is True, (F[3,N,M],T[3,N,M]), 
+                     N = number of particles, M = number of wavelengths
+        """
+        pass
+
+    #TODO vectorize for loops. Avoid transpose of position->pass x,y,z to source instead...?
     def _solve_interactions(self):
         pos = self.spheres.position.T
         Einc = self.source.E(pos,self.material_data['k'])

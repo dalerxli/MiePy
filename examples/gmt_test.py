@@ -32,7 +32,7 @@ source = miepy.sources.x_polarized_plane_wave()
 medium = None
 
 system = miepy.gmt(particles, source, wavelength, Lmax, medium, interactions=True)
-flux = system.particle_flux(0)
+flux = system.flux_from_particle(0)
 plt.plot(wavelength, flux, label='GMT')
 
 # Plot labels
