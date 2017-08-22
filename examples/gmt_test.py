@@ -31,7 +31,7 @@ wavelength = np.linspace(400e-9,1000e-9,100)
 source = miepy.sources.x_polarized_plane_wave()
 medium = None
 
-system = miepy.gmt(particles, source, wavelength, Lmax, medium)
+system = miepy.gmt(particles, source, wavelength, Lmax, medium, interactions=True)
 flux = system.particle_flux(0)
 plt.plot(wavelength, flux, label='GMT')
 

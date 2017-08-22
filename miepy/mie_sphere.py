@@ -2,7 +2,6 @@
 mie_sphere calculates the scattering coefficients of a sphere using Mie theory
 """
 import numpy as np
-import pandas as pd
 import miepy
 from miepy.special_functions import riccati_1,riccati_2,vector_spherical_harmonics
 from miepy.material_functions import constant_material
@@ -11,6 +10,7 @@ from miepy.scattering import scattered_E,scattered_H,interior_E,interior_H
 class single_mie_sphere:
     def __init__(self, radius, material, wavelength, Lmax, medium=None):
         """Solve traditional Mie theory: a single sphere in x-polarized plane wave illumination
+
                radius           particle radius
                material         particle material
                wavelength[N]    wavelength(s) to solve the system at
@@ -20,10 +20,7 @@ class single_mie_sphere:
 
         self.radius = radius
         self.material = material
-        if np.isscalar(wavelength):
-            self.wavelength = np.array([wavelength], dtype=float)
-        else:
-            self.wavelength = np.asarray(wavelength, dtype=float)
+        self.wavelength = np.asarray(np.atleast_1d(wavelength), dtype=float)
         self.Lmax = Lmax
         if medium is None:
             self.medium = constant_material(1.0, 1.0)

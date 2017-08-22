@@ -49,10 +49,7 @@ class single_mie_core_shell:
         self.material_in = material_in
         self.material_out = material_out
 
-        if np.isscalar(wavelength):
-            self.wavelength = np.array([wavelength], dtype=float)
-        else:
-            self.wavelength = np.asarray(wavelength, dtype=float)
+        self.wavelength = np.asarray(np.atleast_1d(wavelength), dtype=float)
         self.Lmax = Lmax
         if medium is None:
             self.medium = constant_material(1.0, 1.0)
