@@ -129,6 +129,11 @@ class gmt:
 
         if (self.interactions):
             self._solve_interactions()
+        else:
+            pos = self.spheres.position.T
+            for k in range(self.Nfreq):
+                Einc = self.source.E(pos,self.material_data['k'][k])
+                self.p[...,k] = Einc[:2,:]
     
     def E_field(self, x, y, z, inc=True):
         """Compute the electric field due to all particles
@@ -206,7 +211,7 @@ class gmt:
             Returns: flux[M], M = number of wavelengths
         """
         r = self.spheres.radius[i] + self.buffer
-        X,Y,Z,THETA,PHI,tau,phi = discrete_sphere(r, self.Ntheta, self.Nphi)
+        X,Y,Z,THETA,PHI,tau,phi = discrete_sphere(r, self.Ntheta, self.Nphi, self.spheres.position[i])
         rhat,*_ = sph_unit_vectors(THETA, PHI)
 
         E_all = self.E_field(X, Y, Z, inc)
@@ -236,7 +241,7 @@ class gmt:
             Returns: (F[3,M],T[3,M]), M = number of wavelengths
         """
         r = self.spheres.radius[i] + self.buffer
-        X,Y,Z,THETA,PHI,tau,phi = discrete_sphere(r, self.Ntheta, self.Nphi)
+        X,Y,Z,THETA,PHI,tau,phi = discrete_sphere(r, self.Ntheta, self.Nphi, self.spheres.position[i])
         rhat,*_ = sph_unit_vectors(THETA, PHI)
 
         E_all = self.E_field(X, Y, Z, inc)
