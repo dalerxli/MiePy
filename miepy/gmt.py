@@ -5,6 +5,7 @@ import numpy as np
 import miepy
 from my_pytools.my_numpy.integrate import simps_2d
 from my_pytools.my_numpy.indices import levi_civita
+from collections import namedtuple
 
 levi = levi_civita()
 
@@ -69,6 +70,14 @@ class spheres:
         if (self.position.shape[0] != self.radius.shape[0] != self.material.shape[0]):
             raise ValueError("The shapes of position, radius, and material do not match")
 
+    def __len__(self):
+        return self.position.shape[0]
+
+    def __iter__(self):
+        sphere_type = namedtuple('sphere', ['position', 'radius', 'material'])
+        return (sphere_type(position=self.position[i], radius=self.radius[i],
+                            material=self.material[i]) for i in range(len(self)))
+
 class gmt:
     """Solve Generalized Mie Theory: N particles in an arbitray source profile"""
     def __init__(self, spheres, source, wavelength, Lmax, medium=None, interactions=True,
@@ -103,7 +112,7 @@ class gmt:
                 raise ValueError('medium must be non-absorbing')
 
         self.Nfreq = len(self.wavelength)
-        self.Nparticles = self.spheres.position.shape[0]
+        self.Nparticles = len(spheres)
 
         self.material_data = {}
         self.material_data['wavelength'] = self.wavelength
