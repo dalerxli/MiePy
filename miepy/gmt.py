@@ -51,6 +51,8 @@ def discrete_sphere(radius, Ntheta, Nphi, center=None):
 #TODO make position a property so that it can be set properly (if input is a list)
 class spheres:
     """A collection of N spheres"""
+    sphere_type = namedtuple('sphere', ['position', 'radius', 'material'])
+
     def __init__(self, position, radius, material):
         """Arguments:
                 position[N,3] or [3]        sphere positions
@@ -74,9 +76,14 @@ class spheres:
         return self.position.shape[0]
 
     def __iter__(self):
-        sphere_type = namedtuple('sphere', ['position', 'radius', 'material'])
-        return (sphere_type(position=self.position[i], radius=self.radius[i],
+        return (self.sphere_type(position=self.position[i], radius=self.radius[i],
                             material=self.material[i]) for i in range(len(self)))
+
+    def __getitem__(self, i):
+        return self.sphere_type(position=self.position[i], radius=self.radius[i],
+                            material=self.material[i])
+
+
 
 class gmt:
     """Solve Generalized Mie Theory: N particles in an arbitray source profile"""
