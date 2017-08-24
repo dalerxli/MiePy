@@ -88,7 +88,7 @@ class spheres:
 class gmt:
     """Solve Generalized Mie Theory: N particles in an arbitray source profile"""
     def __init__(self, spheres, source, wavelength, Lmax, medium=None, interactions=True,
-                   buffer=1e-10, Ntheta=51, Nphi=31):
+                   Ntheta=51, Nphi=31):
         """Arguments:
                spheres          spheres object specifying the positions, radii, and materials
                source           source object specifying the incident E and H functions
@@ -96,7 +96,6 @@ class gmt:
                Lmax             maximum number of orders to use in angular momentum expansion (int)
                medium           (optional) material medium (must be non-absorbing; default=vacuum)
                interactions     (optional) If True, include particle interactions (bool, default=True) 
-               buffer           (optional) buffer to use in force/flux calculations (default = 0.1 nm)
                Ntheta           (optional) number of points in theta to use in force/flux calculations (default = 51)
                Nphi             (optional) number of points in phi to use in force/flux calculations (default = 31)
         """
@@ -106,7 +105,6 @@ class gmt:
         self.Lmax = Lmax
         self.interactions = interactions
 
-        self.buffer = buffer
         self.Ntheta = Ntheta
         self.Nphi = Nphi
 
@@ -214,17 +212,16 @@ class gmt:
                             * (self.material_data['eps_b'][k]/self.material_data['mu_b'][k])**0.5
         return H
 
-    def flux_from_particle(self, i, buffer=None, inc=False):
+    def flux_from_particle(self, i, inc=False):
         """Determine the scattered flux from a single particle
 
             Arguments:
                 i         Particle index
-                buffer    Distance between sphere radius and sphere calculation (default=)
                 inc       Include the incident field (bool, default=False)
             
             Returns: flux[M], M = number of wavelengths
         """
-        r = self.spheres.radius[i] + self.buffer
+        r = self.spheres.radius[i]
         X,Y,Z,THETA,PHI,tau,phi = discrete_sphere(r, self.Ntheta, self.Nphi, self.spheres.position[i])
         rhat,*_ = sph_unit_vectors(THETA, PHI)
 
@@ -245,7 +242,7 @@ class gmt:
 
         return flux
 
-    def force_on_particle(self, i, buffer=None, inc=True):
+    def force_on_particle(self, i, inc=True):
         """Determine the force on a single particle
 
             Arguments:
@@ -254,7 +251,7 @@ class gmt:
             
             Returns: (F[3,M],T[3,M]), M = number of wavelengths
         """
-        r = self.spheres.radius[i] + self.buffer
+        r = self.spheres.radius[i]
         X,Y,Z,THETA,PHI,tau,phi = discrete_sphere(r, self.Ntheta, self.Nphi, self.spheres.position[i])
         rhat,*_ = sph_unit_vectors(THETA, PHI)
 
