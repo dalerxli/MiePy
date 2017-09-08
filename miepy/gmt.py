@@ -5,6 +5,7 @@ import numpy as np
 import miepy
 from my_pytools.my_numpy.integrate import simps_2d
 from my_pytools.my_numpy.indices import levi_civita
+from my_pytools.my_numpy.array import atleast
 from collections import namedtuple
 
 levi = levi_civita()
@@ -60,14 +61,8 @@ class spheres:
                 material[N] or scalar       sphere materials
         """
         self.position = np.asarray(np.atleast_2d(position), dtype=float)
-        self.radius = np.asarray(np.atleast_1d(radius), dtype=float)
-        self.material = np.asarray(np.atleast_1d(material), dtype=np.object)
-
-        if (self.radius.shape[0] == 1):
-            self.radius = np.repeat(self.radius[0], self.position.shape[0])
-
-        if (self.material.shape[0] == 1):
-            self.material = np.repeat(self.material[0], self.position.shape[0])
+        self.radius = atleast(radius, dim=1, length=self.position.shape[0], dtype=float)
+        self.material = atleast(material, dim=1, length=self.position.shape[0], dtype=np.object)
 
         if (self.position.shape[0] != self.radius.shape[0] != self.material.shape[0]):
             raise ValueError("The shapes of position, radius, and material do not match")
