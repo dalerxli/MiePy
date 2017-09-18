@@ -1,3 +1,10 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:13dc0def197eade96f09305dafcf2955b9d9eceb94e6e7a606b841b5b3f27e0f
-size 430
+# this file is part of refractiveindex.info database
+# refractiveindex.info database is in the public domain
+# copyright and related rights waived via CC0 1.0
+
+REFERENCES: "I. H. Malitson, as cited in Handbook of Optics, 3rd edition, Vol. 4. McGraw-Hill 2009. Data fit by Handbook of Optics."
+COMMENTS: "Ordinary ray (o)"
+DATA:
+  - type: formula 1
+    range: 0.44 1.08
+    coefficients: 0 3.54642 0.18518 0.58270 0.033764

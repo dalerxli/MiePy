@@ -1,3 +1,10 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:e8b26de6d689f68cbe2413aa81b2a173b213114b3deb124046ed52217866160d
-size 534
+# this file is part of refractiveindex.info database
+# refractiveindex.info database is in the public domain
+# copyright and related rights waived via CC0 1.0
+
+REFERENCES: "K. F. Hulme et al. Synthetic proustite (Ag<sub>3</sub>AsS<sub>3</sub>): a new crystal for optical mixing, <a href=\"https://doi.org/10.1063/1.1754880\"><i>Appl. Phys. Lett.</i> <b>10</b>, 133-135 (1967)</a>"
+COMMENTS: "Extraordinary ray (e), 20 °C"
+DATA:
+  - type: formula 4
+    range: 0.59 4.6
+    coefficients: 6.346 0.342 0 0.09 1 0 0 0 1 -0.0011 2

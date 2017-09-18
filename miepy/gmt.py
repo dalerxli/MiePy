@@ -363,7 +363,7 @@ class gmt:
                     MieMatrix[:,i,1,j] = ysol[:2]
 
             A = identity - MieMatrix
-            sol = np.linalg.solve(A.reshape(2*self.Nparticles, 2*self.Nparticles), Einc.reshape(2*self.Nparticles)).reshape(2, self.Nparticles)
+            sol = np.linalg.tensorsolve(A, Einc)
             self.p[...,k] = sol
         
 if __name__ == "__main__":

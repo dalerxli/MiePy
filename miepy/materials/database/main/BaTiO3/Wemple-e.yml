@@ -1,3 +1,10 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:41620b2873b446fee70c4e3e3054a4c4fbe40836c5086480b6338bb9279147ea
-size 549
+# this file is part of refractiveindex.info database
+# refractiveindex.info database is in the public domain
+# copyright and related rights waived via CC0 1.0
+
+REFERENCES: "S.H. Wemple, M. Didomenico Jr., and I. Camlibel. Dielectric and optical properties of melt-grown BaTiO<sub>3</sub>, <a href=\"    https://doi.org/10.1016/0022-3697(68)90164-9\"><i>J. Phys. Chem. Solids</i> <b>29</b>, 1797-1803 (1968)</a>"
+COMMENTS: "Extraordinary ray (e). Room temperature"
+DATA:
+  - type: formula 1
+    range: 0.4 0.7
+    coefficients: 0 4.064 0.211
